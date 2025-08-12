@@ -25,7 +25,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('', views.index, name='home'),
-    path('diary/', include('diary.urls'),)
+    path('diary/', include('diary.urls')),
+    path('shop/', include('shop.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ module.name }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h1>{{ module.name }}</h1>
+                    <p>{{ module.description }}</p>
+                    <hr>
+                    <h3>${{ module.price }}</h3>
+                    {% if user_owns_module %}
+                        <p class="alert alert-info">You already own this module!</p>
+                        <a href="{% url 'diary:diary_home' %}" class="btn btn-primary" >Go to Diary</a>
+
+                    {% else %}
+                        <p>Ready to enhance your diary experiene?</p>
+                        <button class="btn btn-primary">Purchase Comming Soon</button>
+                    {% endif %}
+
+                    <a href="{% url 'shop:modules' %}" class="btn btn-primary">Back to Shop</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
