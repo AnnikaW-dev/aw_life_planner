@@ -24,7 +24,8 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('', views.index, name='home')
+    path('', views.index, name='home'),
+    path('diary/', include('diary.urls'),)
 ]
 if settings.DEBUG:
     urlpatterns += static(

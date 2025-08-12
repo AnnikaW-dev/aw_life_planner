@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}
+My Diary
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <h1>My Diary</h1>
+        <a href="{% url 'diary:add_entry' %}" class="btn btn-primary mb-3">
+            Add New Entry
+        </a>
+        {% if entries %}
+            {% for entry in entries %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'diary:view_entry' entry.id %}">{{ entry.title }}</a>
+                        </h5>
+                        <p class="text-muted">
+                            {{ entry.date|date:"F d, Y" }}
+                            {% if entry.mood %} - {{ entry.get_mood_display }}{% endif %}
+                        </p>
+                        <p class="card-text">
+                            {{ entry.content|truncatewords:30 }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>
+                No diary entries yet.
+                <a href="{% url 'diary:add_entry' %}">
+                    Create your first entry!
+                </a>
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

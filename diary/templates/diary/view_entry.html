@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ entry.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h2>{{ entry.title }}</h2>
+                    <p class="text-muted">
+                        {{ entry.date|date:"F d,Y" }}
+                        {% if entry.mood %} - {{ entry.get_mood_display }}{% endif %}
+                    </p>
+                    <hr>
+                    <p>{{ entry.content|linebreaks }}</p>
+                    <hr>
+                    <a href="{% url 'diary:diary_home' %}" class="btn btn-secondary">
+                        Back to Diary
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

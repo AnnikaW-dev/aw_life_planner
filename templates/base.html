@@ -32,6 +32,9 @@
                             <a href="#" class="nav-link">Hi, {{ user.username }}</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{% url 'diary:diary_home' %}">My Diary</a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{% url 'account_logout' %}" class="nav-link">Logout</a>
                         </li>
                     {% else %}
