@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Entry{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h2>Delete</h2>
+                    <p>Are you sure you wnat to delete this entry?</p>
+                    <div class="alert alert-warning">
+                        <h5> {{ entry.title }} </h5>
+                        <p> {{ entry.date|date:"F d, Y" }} </p>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-danger" type="submit">Yes, Delete</button>
+                        <a href="{% url 'diary:view_entry' entry.id %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

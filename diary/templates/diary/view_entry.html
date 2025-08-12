@@ -15,6 +15,12 @@
                     <hr>
                     <p>{{ entry.content|linebreaks }}</p>
                     <hr>
+                    <a href="{% url 'diary:edit_entry' entry.id %}" class="btn btn-secondary">
+                        Edit
+                    </a>
+                    <a href="{% url 'diary:delete_entry' entry.id %}" class="btn btn-secondary">
+                        Delete
+                    </a>
                     <a href="{% url 'diary:diary_home' %}" class="btn btn-secondary">
                         Back to Diary
                     </a>

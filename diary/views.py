@@ -31,3 +31,30 @@ def add_entry(request):
 def view_entry(request, entry_id):
     entry = get_object_or_404(DiaryEntry, pk=entry_id)
     return render(request, 'diary/view_entry.html', {'entry': entry})
+
+@login_required
+def edit_entry(request, entry_id):
+    entry = get_object_or_404(DiaryEntry, pk=entry_id, user=request.user)
+
+    if request.method == 'POST':
+        form = DiaryEntryForm(request.POST, instance=entry)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Entry update successfully!')
+            return redirect('diary:view_entry', entry_id=entry.id)
+    else:
+        form= DiaryEntryForm(instance=entry)
+
+    return render(request, 'diary/edit_entry.html', {'form':form, 'entry':entry})
+
+
+@login_required
+def delete_entry(request, entry_id):
+    entry = get_object_or_404(DiaryEntry, id=entry_id, user=request.user)
+
+    if request.method == 'POST':
+        entry.delete()
+        messages.success(request, 'Entry deleted successfully!')
+        return redirect('diary:diary_home')
+
+    return render(request, 'diary/delete_entry.html', {'entry':entry})
