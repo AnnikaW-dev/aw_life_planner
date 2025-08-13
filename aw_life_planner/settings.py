@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'accounts',
     'diary',
     'shop',
+    'checkout',
 ]
 
 MIDDLEWARE = [
@@ -80,7 +81,7 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-SITE_ID=1
+SITE_ID = 1
 
 # Alluth settings
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}
