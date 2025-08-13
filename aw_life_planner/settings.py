@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from django.contrib.messages import constants as messages
 
 # Load enviroment variables
 load_dotenv()
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
     'diary',
     'shop',
     'checkout',
+    'modules',
 ]
 
 MIDDLEWARE = [
@@ -192,14 +194,14 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Stripe Configuration
-STRIPE_CURRENCY ='euro'
+STRIPE_CURRENCY = 'euro'
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', '')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_WH_SECRET = os.environ.get('STRIPE_WH_SECRET', '')
 
 
 # Messagses
-from django.contrib.messages import constants as messages
+
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-info',
     messages.INFO: 'alert-info',

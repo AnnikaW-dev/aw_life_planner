@@ -1,0 +1,74 @@
+[
+  {
+    "model": "shop.category",
+    "pk": 1,
+    "fields": {
+      "name": "productivity",
+      "friendly_name": "Productivity"
+    }
+  },
+  {
+    "model": "shop.category",
+    "pk": 2,
+    "fields": {
+      "name": "wellness",
+      "friendly_name": "Health & Wellness"
+    }
+  },
+  {
+    "model": "shop.category",
+    "pk": 3,
+    "fields": {
+      "name": "creativity",
+      "friendly_name": "Creativity"
+    }
+  },
+  {
+    "model": "shop.module",
+    "pk": 1,
+    "fields": {
+      "category": 2,
+      "name": "Meal Planner Pro",
+      "module_type": "meal_planner",
+      "description": "Take control of your nutrition with our comprehensive meal planning module. Plan your meals for the week, track your water intake, and maintain a healthier lifestyle.",
+      "price": "9.99",
+      "image": ""
+    }
+  },
+  {
+    "model": "shop.module",
+    "pk": 2,
+    "fields": {
+      "category": 1,
+      "name": "Cleaning Schedule Manager",
+      "module_type": "cleaning_schedule",
+      "description": "Never forget a cleaning task again! Create customized cleaning schedules for every room in your home and get reminders when tasks are due.",
+      "price": "7.99",
+      "image": ""
+    }
+  },
+  {
+    "model": "shop.module",
+    "pk": 3,
+    "fields": {
+      "category": 3,
+      "name": "Digital Sticker Pack",
+      "module_type": "stickers",
+      "description": "Add personality and flair to your diary entries with our collection of beautiful digital stickers. Express your mood and make your memories more vibrant!",
+      "price": "4.99",
+      "image": ""
+    }
+  },
+  {
+    "model": "shop.module",
+    "pk": 4,
+    "fields": {
+      "category": 2,
+      "name": "Habit Tracker Plus",
+      "module_type": "habit_tracker",
+      "description": "Build better habits and break bad ones with our visual habit tracking system. See your progress at a glance and stay motivated!",
+      "price": "6.99",
+      "image": ""
+    }
+  }
+]

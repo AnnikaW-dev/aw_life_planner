@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=254)
-    friendly_name = models.CharField(max_length=254, null=True,blank=True)
+    friendly_name = models.CharField(max_length=254, null=True, blank=True)
 
     class Meta:
         verbose_name_plural = 'Categories'
@@ -17,7 +17,7 @@ class Module(models.Model):
     MODULE_TYPES = [
         ('meal_planner', 'Meal Planner'),
         ('cleaning_schedule', 'Cleaning Schedule'),
-        ('Stickers', 'Digital Stickers'),
+        ('stickers', 'Digital Stickers'),
         ('habit_tracker', 'Habit Tracker'),
     ]
 
@@ -26,7 +26,7 @@ class Module(models.Model):
     module_type = models.CharField(max_length=50, choices=MODULE_TYPES)
     description = models.TextField()
     price = models.DecimalField(max_digits=6, decimal_places=2)
-    images = models.ImageField(null=True, blank=True)
+    image = models.ImageField(null=True, blank=True)  # ändrat från images
 
     def __str__(self):
         return self.name
