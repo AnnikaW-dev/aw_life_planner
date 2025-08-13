@@ -17,7 +17,10 @@
 
                     {% else %}
                         <p>Ready to enhance your diary experiene?</p>
-                        <button class="btn btn-primary">Purchase Comming Soon</button>
+                        <form action="{% url 'shop:add_to_cart' module.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">Add to Cart</button>
+                        </form>
                     {% endif %}
 
                     <a href="{% url 'shop:modules' %}" class="btn btn-primary">Back to Shop</a>

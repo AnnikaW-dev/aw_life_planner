@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Shopping Cart {% endblock %}
+
+{% block content %}
+<h1>Shopping Cart</h1>
+
+{% if cart_items %}
+    <div class="row">
+        <div class="colmd-8">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Module
+                        </th>
+                        <th>
+                            Price
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>
+                            {{ item.module.name }}
+                        </td>
+                        <td>
+                            {{ item.module.price }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>
+                            Total:
+                        </th>
+                        <th>
+                            ${{ total }}
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <a href="{% url 'shop:modules' %}" class="btn btn-secondary">
+                Continue Shopping
+            </a>
+            <button class="btn btn-primary" disable>Shop Modules</button>
+        </div>
+    </div>
+    {% else %}
+        <p>Your cart is empty.</p>
+        <a href="{% url 'shop:modules' %}" class="btn btn-primary" >Shop Modules</a>
+{% endif %}
+{% endblock %}
