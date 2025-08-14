@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Checkout</h2>
+
+        <form action="{% url 'checkout:checkout' %}" method="POST" id="payment-form">
+            {% csrf_token %}
+            <h4>Contact Information</h4>
+            {{ order_form|crispy }}
+
+            <h4 class="mt-4">Payment Information</h4>
+            <div class="mb-3">
+                <label for="card-element">Credit or debit card</label>
+                <div id="card-element" class="form-control">
+                    <!-- Stripe card element will go here -->
+                </div>
+
+                <div id="card-errors" class="test-danger mt-2">
+
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="submit-button">
+                Complete Purchase - ${{total}}
+            </button>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <h3>Order Summary</h3>
+        <div class="card">
+            <div class="card-body">
+                {% for item in cart_items %}
+                <p>{{ item.module.name }} - ${{ item.module.price }}</p>
+                {% endfor %}
+                <hr>
+                <h5>Total: ${{ total }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ stripe_public_key|json_script:"id_stripe_public_key" }}
+{{ client_secret|json_script:"id_client_secret" }}
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    // Get Stripe public key
+    var stripePublicKey = document.getElementById('id_stripe_public_key').textContent.slice(1, -1);
+    var clientSecret = document.getElementById('id_client_secret').textContent.slice(1, -1);
+    var stripe = Stripe(stripePublicKey);
+    var elements = stripe.elements();
+
+    // Create card element
+    var card = elements.create('card');
+    card.mount('#card-element');
+
+    // Handle form submission
+    var form = document.getElementById('payment-form');
+    form.addEventListener('submit', function(ev) {
+        ev.preventDefault();
+        stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: card,
+            }
+        }).then(function(result) {
+            if (result.error) {
+                // Show error to customer
+                var errorDiv = document.getElementById('card-errors');
+                errorDiv.textContent = result.error.message;
+            } else {
+                // Payment succeeded
+                form.submit();
+            }
+        });
+    });
+</script>
+{% endblock %}

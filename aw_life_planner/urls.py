@@ -27,6 +27,8 @@ urlpatterns = [
     path('', views.index, name='home'),
     path('diary/', include('diary.urls')),
     path('shop/', include('shop.urls')),
+    path('checkout/', include('checkout.urls')),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(

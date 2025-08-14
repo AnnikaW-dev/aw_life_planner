@@ -47,7 +47,12 @@
             <a href="{% url 'shop:modules' %}" class="btn btn-secondary">
                 Continue Shopping
             </a>
-            <button class="btn btn-primary" disable>Shop Modules</button>
+            {% if cart_items %}
+                <a href="{% url 'checkout:checkout' %}" class="btn btn-primary">
+                    Proceed to Checkout
+                </a>
+            {% endif %}
+
         </div>
     </div>
     {% else %}
