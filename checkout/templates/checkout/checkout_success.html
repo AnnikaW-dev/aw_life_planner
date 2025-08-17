@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Thank You!{% endblock %}
+
+{% block contet %}
+<div class="row">
+    <div class="col-md-8 mx-auto text-center">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="text-success">Thank You!</h1>
+                <p class="lead">Your order has been successfully produced.</p>
+                <p>Order Number: <strong>{{ order.order_number }}</strong></p>
+                <p>Total: <strong>${{ order.total }}</strong></p>
+                <hr>
+                <h4>Modules Purchased</h4>
+                {% for item in order.lineitems.all %}
+                    <p>{{ item.module.name }} - ${{ item.module.price }}</p>
+                {% endfor %}
+                <hr>
+                <p>You can now access your purchased modules from the navigation menu!</p>
+                <a href="{% url 'diary:diary_home' %}" class="btn btn-primary">
+                    Go to My Dairy
+                </a>
+                <a href="{% url 'shop:moduels' %}" class="btn btn-primary">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

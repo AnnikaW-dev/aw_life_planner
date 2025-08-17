@@ -1,3 +1,4 @@
+<!-- checkout/templates/checkout/checkout.html -->
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
@@ -7,28 +8,33 @@
 <div class="row">
     <div class="col-md-8">
         <h2>Checkout</h2>
-
         <form action="{% url 'checkout:checkout' %}" method="POST" id="payment-form">
             {% csrf_token %}
+
             <h4>Contact Information</h4>
             {{ order_form|crispy }}
 
             <h4 class="mt-4">Payment Information</h4>
             <div class="mb-3">
                 <label for="card-element">Credit or debit card</label>
-                <div id="card-element" class="form-control">
+                <div id="card-element" class="form-control" style="height: 40px; padding-top: 10px;">
                     <!-- Stripe card element will go here -->
                 </div>
-
-                <div id="card-errors" class="test-danger mt-2">
-
-                </div>
+                <div id="card-errors" class="text-danger mt-2"></div>
             </div>
-            <button type="submit" class="btn btn-primary" id="submit-button">
-                Complete Purchase - ${{total}}
+
+            <input type="hidden" value="{{ client_secret }}" name="client_secret">
+
+            <button type="submit" class="btn btn-primary btn-lg" id="submit-button">
+                <span id="button-text">Complete Purchase - ${{ total }}</span>
+                <span id="loading-spinner" style="display: none;">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Processing...
+                </span>
             </button>
         </form>
     </div>
+
     <div class="col-md-4">
         <h3>Order Summary</h3>
         <div class="card">
@@ -47,37 +53,102 @@
 {% block extra_js %}
 {{ stripe_public_key|json_script:"id_stripe_public_key" }}
 {{ client_secret|json_script:"id_client_secret" }}
-
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    // Get Stripe public key
-    var stripePublicKey = document.getElementById('id_stripe_public_key').textContent.slice(1, -1);
-    var clientSecret = document.getElementById('id_client_secret').textContent.slice(1, -1);
-    var stripe = Stripe(stripePublicKey);
-    var elements = stripe.elements();
+// Get Stripe configuration
+var stripePublicKey = JSON.parse(document.getElementById('id_stripe_public_key').textContent);
+var clientSecret = JSON.parse(document.getElementById('id_client_secret').textContent);
 
-    // Create card element
-    var card = elements.create('card');
-    card.mount('#card-element');
+// Initialize Stripe
+var stripe = Stripe(stripePublicKey);
+var elements = stripe.elements();
 
-    // Handle form submission
-    var form = document.getElementById('payment-form');
-    form.addEventListener('submit', function(ev) {
-        ev.preventDefault();
-        stripe.confirmCardPayment(clientSecret, {
-            payment_method: {
-                card: card,
+// Create card element
+var style = {
+    base: {
+        color: '#32325d',
+        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+        fontSmoothing: 'antialiased',
+        fontSize: '16px',
+        '::placeholder': {
+            color: '#aab7c4'
+        }
+    },
+    invalid: {
+        color: '#fa755a',
+        iconColor: '#fa755a'
+    }
+};
+
+var card = elements.create('card', {style: style});
+card.mount('#card-element');
+
+// Handle real-time validation errors
+card.addEventListener('change', function(event) {
+    var displayError = document.getElementById('card-errors');
+    if (event.error) {
+        displayError.textContent = event.error.message;
+    } else {
+        displayError.textContent = '';
+    }
+});
+
+// Handle form submission
+var form = document.getElementById('payment-form');
+var submitButton = document.getElementById('submit-button');
+var buttonText = document.getElementById('button-text');
+var loadingSpinner = document.getElementById('loading-spinner');
+
+form.addEventListener('submit', function(ev) {
+    ev.preventDefault();
+
+    // Disable button and show spinner
+    submitButton.disabled = true;
+    buttonText.style.display = 'none';
+    loadingSpinner.style.display = 'inline-block';
+
+    stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+            card: card,
+            billing_details: {
+                name: form.full_name.value,
+                email: form.email.value,
+                phone: form.phone_number.value,
             }
-        }).then(function(result) {
-            if (result.error) {
-                // Show error to customer
-                var errorDiv = document.getElementById('card-errors');
-                errorDiv.textContent = result.error.message;
-            } else {
-                // Payment succeeded
+        }
+    }).then(function(result) {
+        if (result.error) {
+            // Show error to customer
+            var errorDiv = document.getElementById('card-errors');
+            errorDiv.textContent = result.error.message;
+
+            // Re-enable button
+            submitButton.disabled = false;
+            buttonText.style.display = 'inline';
+            loadingSpinner.style.display = 'none';
+        } else {
+            // Payment succeeded
+            if (result.paymentIntent.status === 'succeeded') {
+                // Add payment intent ID to form
+                var paymentIntentInput = document.createElement('input');
+                paymentIntentInput.type = 'hidden';
+                paymentIntentInput.name = 'payment_intent_id';
+                paymentIntentInput.value = result.paymentIntent.id;
+                form.appendChild(paymentIntentInput);
+
+                // Submit the form
                 form.submit();
             }
-        });
+        }
+    }).catch(function(error) {
+        var errorDiv = document.getElementById('card-errors');
+        errorDiv.textContent = 'An error occurred processing your payment.';
+
+        // Re-enable button
+        submitButton.disabled = false;
+        buttonText.style.display = 'inline';
+        loadingSpinner.style.display = 'none';
     });
+});
 </script>
 {% endblock %}
