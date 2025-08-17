@@ -48,6 +48,29 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'diary:diary_home' %}">My Diary</a>
                         </li>
+                        {% if user.is_authenticated %}
+                            {% if user.usermodule_set.exists %}
+                                <li class="nav-item dropdown">
+                                    <a href="#" id="modulesDropdown" role="button" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                        My modules
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        {% for user_module in user.usermodule_set.all %}
+                                            {% if user_module.module.module_type == 'meal_planner' %}
+                                            <li><a class="dropdown-item" href="{% url 'modules:meal_planner' %}">Meal Planner</a></li>
+                                            {% elif user_module.module.module_type == 'cleaning_schedule' %}
+                                            <li><a class="dropdown-item" href="{% url 'modules:cleaning_schedule' %}">Cleaning Schedule</a></li>
+                                            {% elif user_module.module.module_type == 'habit_tracker' %}
+                                            <li><a class="dropdown-item" href="{% url 'modules:habit_tracker' %}">Habit Tracker</a></li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+
+                                </li>
+
+
+                            {% endif %}
+                        {% endif %}
                         <li class="nav-item">
                             <a href="{% url 'account_logout' %}" class="nav-link">Logout</a>
                         </li>

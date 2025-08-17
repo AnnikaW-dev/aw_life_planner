@@ -46,14 +46,14 @@ class CleaningTaskForm(forms.ModelForm):
 
 
 
-class HabitTrackerFHabitTrackerorm(forms.ModelForm):
+class HabitTrackerForm(forms.ModelForm):
     class Meta:
         model = HabitTracker
-        fields = ['habit_name', 'description', 'target_frequency', 'color', 'notes']
+        fields = ['habit_name', 'description', 'target_frequency', 'color', ]
         widgets = {
             'habit_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Exercise, Read, Meditate'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Describe your habit...'}),
             'target_frequency': forms.Select(attrs={'class': 'form-control'}),
             'color': forms.DateInput(attrs={'type': 'color', 'class': 'form-control form-control-color'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Any special instructions...'}),
+            # 'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Any special instructions...'}),
         }

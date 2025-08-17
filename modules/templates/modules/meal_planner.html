@@ -1,0 +1,56 @@
+<!-- modules/templates/modules/meal_planner.html -->
+{% extends 'base.html' %}
+
+{% block title %}Meal Planner{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>🍽️ Meal Planner</h1>
+        <p class="lead">Plan your meals and track your nutrition!</p>
+
+        <div class="mb-4">
+            <a href="{% url 'modules:add_meal_plan' %}" class="btn btn-primary">📝 Add New Meal Plan</a>
+        </div>
+
+        {% if meal_plans %}
+            <h3>Your Meal Plans</h3>
+            <div class="row">
+                {% for plan in meal_plans %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>{{ plan.date|date:"l, F d, Y" }}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if plan.breakfast %}
+                            <p><strong>🌅 Breakfast:</strong> {{ plan.breakfast }}</p>
+                            {% endif %}
+                            {% if plan.lunch %}
+                            <p><strong>☀️ Lunch:</strong> {{ plan.lunch }}</p>
+                            {% endif %}
+                            {% if plan.dinner %}
+                            <p><strong>🌙 Dinner:</strong> {{ plan.dinner }}</p>
+                            {% endif %}
+                            {% if plan.snacks %}
+                            <p><strong>🍿 Snacks:</strong> {{ plan.snacks }}</p>
+                            {% endif %}
+                            <p><strong>💧 Water:</strong> {{ plan.water_intake }} glasses</p>
+                            {% if plan.notes %}
+                            <p><small class="text-muted">📝 Notes: {{ plan.notes }}</small></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h4>No meal plans yet!</h4>
+                <p>Start planning your meals to maintain a healthy lifestyle.</p>
+                <a href="{% url 'modules:add_meal_plan' %}" class="btn btn-primary">Create Your First Meal Plan</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

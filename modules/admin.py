@@ -91,7 +91,7 @@ class HabitTrackerAdmin (admin.ModelAdmin):
 class HabitLogAdmin (admin.ModelAdmin):
     list_display = [
          'habit', 'date',
-        'completed',
+         'completed',
     ]
     list_filter = [
         'date', 'completed',
