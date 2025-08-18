@@ -233,3 +233,15 @@ if not DEBUG:
 
 # Static files storage for production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+if not DEBUG:
+    ALLOWED_HOSTS.extend([
+        '.herokuapp.com',
+        'aw-life-planner-ms4-f700cbfe6055.herokuapp.com',  # Your exact domain
+    ])
+
+    # Add CSRF trusted origins for Heroku
+    CSRF_TRUSTED_ORIGINS.extend([
+        'https://aw-life-planner-ms4-f700cbfe6055.herokuapp.com',
+        'https://*.herokuapp.com',
+    ])
