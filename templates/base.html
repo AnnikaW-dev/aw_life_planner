@@ -4,82 +4,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyLifePlanner</title>
+    <title>MyLifePlanner - {% block title %}Home{% endblock %}</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
+     <!-- Font Awesome Icons -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
     {% block extra_css %}
 
     {% endblock %}
+
+
     {% block corejs %}
         <script src="https://js.stripe.com/basil/stripe.js"></script>
     {% endblock %}
 
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-ligth">
+    <body>
+    <!-- Professional Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-professional">
         <div class="container">
-            <a href="/" class="navbar-brand">AW LifePlanner</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <!-- Brand -->
+            <a class="navbar-brand-professional" href="{% url 'home' %}">
+                <div class="brand-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                AW LifePlanner
+            </a>
+
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler navbar-toggler-professional" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon-custom"></span>
             </button>
-            <div class="collaps navbar-collapes" id="navbarNav" >
-                <ul class="nabar-nav ms-auto">
+
+            <!-- Navigation Links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto navbar-nav-professional">
+                    <!-- Home -->
                     <li class="nav-item">
-                        <a href="/" class="nav-link">Home</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                            <i class="fas fa-home"></i>
+                            Home
+                        </a>
                     </li>
+
+                    <!-- Shop -->
                     <li class="nav-item">
-                        <a href="{% url 'shop:modules' %}" class="nav-link">Shop</a>
+                        <a class="nav-link {% if 'shop' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'shop:modules' %}">
+                            <i class="fas fa-store"></i>
+                            Shop
+                        </a>
                     </li>
+
                     {% if user.is_authenticated %}
+                        <!-- My Diary -->
                         <li class="nav-item">
-                            <a href="{% url 'shop:view_cart' %}">
+                            <a class="nav-link {% if 'diary' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'diary:diary_home' %}">
+                                <i class="fas fa-book"></i>
+                                My Diary
+                            </a>
+                        </li>
+
+                        <!-- My Modules Dropdown -->
+                        {% if user.usermodule_set.exists %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle {% if 'modules' in request.resolver_match.namespace %}active{% endif %}" href="#" id="modulesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-puzzle-piece"></i>
+                                    My Modules
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-professional" aria-labelledby="modulesDropdown">
+                                    <li><div class="dropdown-header-professional">Your Premium Modules</div></li>
+                                    {% for user_module in user.usermodule_set.all %}
+                                        {% if user_module.module.module_type == 'meal_planner' %}
+                                            <li>
+                                                <a class="dropdown-item dropdown-item-professional" href="{% url 'modules:meal_planner' %}">
+                                                    <span class="module-icon">🍽️</span>
+                                                    Meal Planner
+                                                </a>
+                                            </li>
+                                        {% elif user_module.module.module_type == 'cleaning_schedule' %}
+                                            <li>
+                                                <a class="dropdown-item dropdown-item-professional" href="{% url 'modules:cleaning_schedule' %}">
+                                                    <span class="module-icon">🧹</span>
+                                                    Cleaning Schedule
+                                                </a>
+                                            </li>
+                                        {% elif user_module.module.module_type == 'habit_tracker' %}
+                                            <li>
+                                                <a class="dropdown-item dropdown-item-professional" href="{% url 'modules:habit_tracker' %}">
+                                                    <span class="module-icon">✅</span>
+                                                    Habit Tracker
+                                                </a>
+                                            </li>
+                                        {% elif user_module.module.module_type == 'stickers' %}
+                                            <li>
+                                                <a class="dropdown-item dropdown-item-professional" href="#">
+                                                    <span class="module-icon">✨</span>
+                                                    Digital Stickers
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item dropdown-item-professional" href="{% url 'shop:modules' %}">
+                                            <span class="module-icon">🛒</span>
+                                            Get More Modules
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        <!-- Cart -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'shop:view_cart' %}">
+                                <i class="fas fa-shopping-cart"></i>
                                 Cart
                                 {% if request.session.cart %}
-                                    ({{ request.session.cart|length }})
+                                    <span class="cart-badge">{{ request.session.cart|length }}</span>
                                 {% endif %}
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">Hi, {{ user.username }}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'diary:diary_home' %}">My Diary</a>
-                        </li>
-                        {% if user.is_authenticated %}
-                            {% if user.usermodule_set.exists %}
-                                <li class="nav-item dropdown">
-                                    <a href="#" id="modulesDropdown" role="button" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                        My modules
+
+                        <!-- User Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar">
+                                    {{ user.username|first|upper }}
+                                </div>
+                                Hi, {{ user.username|truncatechars:12 }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-professional dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><div class="dropdown-header-professional">Account</div></li>
+                                <li>
+                                    <a class="dropdown-item dropdown-item-professional" href="#">
+                                        <i class="fas fa-user"></i>
+                                        Profile Settings
                                     </a>
-                                    <ul class="dropdown-menu">
-                                        {% for user_module in user.usermodule_set.all %}
-                                            {% if user_module.module.module_type == 'meal_planner' %}
-                                            <li><a class="dropdown-item" href="{% url 'modules:meal_planner' %}">Meal Planner</a></li>
-                                            {% elif user_module.module.module_type == 'cleaning_schedule' %}
-                                            <li><a class="dropdown-item" href="{% url 'modules:cleaning_schedule' %}">Cleaning Schedule</a></li>
-                                            {% elif user_module.module.module_type == 'habit_tracker' %}
-                                            <li><a class="dropdown-item" href="{% url 'modules:habit_tracker' %}">Habit Tracker</a></li>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </ul>
-
                                 </li>
-
-
-                            {% endif %}
-                        {% endif %}
-                        <li class="nav-item">
-                            <a href="{% url 'account_logout' %}" class="nav-link">Logout</a>
+                                <li>
+                                    <a class="dropdown-item dropdown-item-professional" href="{% url 'diary:diary_home' %}">
+                                        <i class="fas fa-book"></i>
+                                        My Diary
+                                    </a>
+                                </li>
+                                {% if user.is_staff %}
+                                    <li>
+                                        <a class="dropdown-item dropdown-item-professional" href="/admin/" target="_blank">
+                                            <i class="fas fa-cog"></i>
+                                            Admin Panel
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item dropdown-item-professional" href="{% url 'account_logout' %}">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        Logout
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
+
                     {% else %}
+                        <!-- Login -->
                         <li class="nav-item">
-                            <a href="{% url 'account_login' %}" class="nav-link">Login</a>
+                            <a class="nav-link" href="{% url 'account_login' %}">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Login
+                            </a>
                         </li>
+                        <!-- Register -->
                         <li class="nav-item">
-                            <a href="{% url 'account_signup' %}" class="nav-link">Register</a>
+                            <a class="nav-link" href="{% url 'account_signup' %}">
+                                <i class="fas fa-user-plus"></i>
+                                Register
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
@@ -91,21 +198,47 @@
     {% if messages %}
         <div class="container mt-3">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" >
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle me-2"></i>
+                    {% elif message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% else %}
+                        <i class="fas fa-info-circle me-2"></i>
+                    {% endif %}
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" ></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
         </div>
     {% endif %}
 
-    <main class="container my-4">
-        {%  block content %}
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}
         {% endblock %}
-
     </main>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4 bg-dark text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-calendar-check me-2"></i>AW Life Planner</h5>
+                    <p class="mb-0">Your personal digital diary and life organizer</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">&copy; 2024 AW Life Planner. All rights reserved.</p>
+                    <small class="text-muted">Built with Django & Bootstrap</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    {% block extra_js %}
-    {% endblock %}
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

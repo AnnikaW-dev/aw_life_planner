@@ -65,8 +65,30 @@ class HabitTrackerForm(forms.ModelForm):
         model = HabitTracker
         fields = ['habit_name', 'description', 'target_frequency', 'color']
         widgets = {
-            'habit_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'habit_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Drink 8 glasses of water'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Why is this habit important to you?'
+            }),
             'target_frequency': forms.Select(attrs={'class': 'form-control'}),
-            'color': forms.TextInput(attrs={'type': 'color', 'class': 'form-control form-control-color'}),
+            'color': forms.TextInput(attrs={
+                'type': 'color',
+                'class': 'form-control form-control-color',
+                'value': '#3498db'
+            }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make fields required
+        self.fields['habit_name'].required = True
+        self.fields['target_frequency'].required = True
+        self.fields['color'].required = True
+
+        # Set default color if creating new habit
+        if not self.instance.pk:
+            self.fields['color'].initial = '#3498db'

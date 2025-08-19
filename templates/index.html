@@ -1,7 +1,508 @@
-{% extends 'base.html' %} {% block title %}Welcome{% endblock %} {% block content %}
-Welcome to MyLifePlanner
-Your personal digital diary and life organizer
+<!-- templates/index.html -->
+{% extends 'base.html' %}
+{% load static %}
 
-Start organizing your life one day at a time!
+{% block title %}Welcome to Your Digital Life Planner{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Feature Cards */
+    .feature-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .feature-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    /* Module Cards */
+    .module-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .module-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .module-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .price-tag {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        font-weight: 700;
+        font-size: 1.3rem;
+        padding: 8px 16px;
+        border-radius: 15px;
+        display: inline-block;
+        margin: 1rem 0;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    }
+
+    /* Stats Section */
+    .stats-section {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        padding: 3rem 0;
+        margin: 3rem -15px;
+        border-radius: 30px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: block;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 0.5rem;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 0;
+        margin: 4rem -15px 0 -15px;
+        border-radius: 30px 30px 0 0;
+        text-align: center;
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .cta-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+
+        .hero-buttons .btn {
+            display: block;
+            width: 80%;
+            margin: 0.5rem auto;
+        }
+
+        .feature-icon, .module-icon {
+            font-size: 3rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-10">
+                    <h1 class="hero-title animate-fade-up">
+                        Transform Your Life with AW Life Planner
+                    </h1>
+                    <p class="hero-subtitle animate-fade-up">
+                        Your all-in-one digital companion for diary writing, meal planning, habit tracking,
+                        and life organization. Start your journey to a more organized and mindful life today.
+                    </p>
+
+                    {% if user.is_authenticated %}
+                        <div class="hero-buttons animate-fade-up">
+                            <a class="btn btn-primary btn-lg" href="{% url 'diary:diary_home' %}">
+                                📔 Continue My Journey
+                            </a>
+                            {% if user.usermodule_set.exists %}
+                                <a class="btn btn-success btn-lg" href="{% url 'modules:meal_planner' %}">
+                                    🚀 Use My Modules
+                                </a>
+                            {% else %}
+                                <a class="btn btn-warning btn-lg" href="{% url 'shop:modules' %}">
+                                    ✨ Unlock Premium Features
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="hero-buttons animate-fade-up">
+                            <a class="btn btn-primary btn-lg" href="{% url 'account_signup' %}">
+                                🚀 Start Free Today
+                            </a>
+                            <a class="btn btn-outline-light btn-lg" href="{% url 'account_login' %}">
+                                🔑 I Have an Account
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="container">
+    <!-- Core Features Section -->
+    <section class="py-5">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-4 mb-3" style="color: #333; font-weight: 700;">
+                    Everything You Need to Organize Your Life
+                </h2>
+                <p class="lead text-muted">
+                    Powerful tools designed to help you build better habits, stay organized, and live intentionally.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card text-center animate-slide-left">
+                    <div class="card-body p-4">
+                        <span class="feature-icon">📔</span>
+                        <h5 class="card-title fw-bold">Digital Diary</h5>
+                        <p class="card-text">
+                            Capture your thoughts, memories, and daily experiences.
+                            Track your mood and reflect on your personal growth journey.
+                        </p>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'diary:diary_home' %}" class="btn btn-primary btn-sm">
+                                Start Writing →
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card text-center animate-fade-up">
+                    <div class="card-body p-4">
+                        <span class="feature-icon">🔒</span>
+                        <h5 class="card-title fw-bold">100% Private</h5>
+                        <p class="card-text">
+                            Your personal data is encrypted and secure.
+                            Only you have access to your diary entries and personal information.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card text-center animate-fade-up">
+                    <div class="card-body p-4">
+                        <span class="feature-icon">📱</span>
+                        <h5 class="card-title fw-bold">Mobile Ready</h5>
+                        <p class="card-text">
+                            Access your life planner from anywhere.
+                            Responsive design works perfectly on phone, tablet, or desktop.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card text-center animate-slide-right">
+                    <div class="card-body p-4">
+                        <span class="feature-icon">⚡</span>
+                        <h5 class="card-title fw-bold">Smart Analytics</h5>
+                        <p class="card-text">
+                            Track your progress with visual charts and insights.
+                            See patterns in your habits and mood over time.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section animate-fade-up">
+        <div class="container">
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">1000+</span>
+                        <div class="stat-label">Happy Users</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">10K+</span>
+                        <div class="stat-label">Diary Entries</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">5K+</span>
+                        <div class="stat-label">Habits Tracked</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">99%</span>
+                        <div class="stat-label">Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Premium Modules Section -->
+    <section class="py-5">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-4 mb-3" style="color: #333; font-weight: 700;">
+                    Supercharge Your Planning
+                </h2>
+                <p class="lead text-muted">
+                    Unlock powerful premium modules to take your life organization to the next level.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card module-card text-center">
+                    <div class="card-body p-4">
+                        <span class="module-icon">🍽️</span>
+                        <h5 class="card-title fw-bold">Meal Planner Pro</h5>
+                        <p class="card-text">
+                            Plan weekly meals, track nutrition, and monitor water intake.
+                            Build healthy eating habits that stick.
+                        </p>
+                        <div class="price-tag">$9.99</div>
+                        <div class="features-list text-start">
+                            <small class="text-muted">
+                                ✓ Weekly meal planning<br>
+                                ✓ Water intake tracking<br>
+                                ✓ Nutritional insights<br>
+                                ✓ Shopping list generator
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card module-card text-center">
+                    <div class="card-body p-4">
+                        <span class="module-icon">🧹</span>
+                        <h5 class="card-title fw-bold">Cleaning Schedule</h5>
+                        <p class="card-text">
+                            Never forget a chore again! Create custom cleaning schedules
+                            with smart reminders and progress tracking.
+                        </p>
+                        <div class="price-tag">$7.99</div>
+                        <div class="features-list text-start">
+                            <small class="text-muted">
+                                ✓ Custom task schedules<br>
+                                ✓ Room-based organization<br>
+                                ✓ Overdue alerts<br>
+                                ✓ Completion tracking
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card module-card text-center">
+                    <div class="card-body p-4">
+                        <span class="module-icon">✅</span>
+                        <h5 class="card-title fw-bold">Habit Tracker Plus</h5>
+                        <p class="card-text">
+                            Build powerful habits with visual tracking, streak counters,
+                            and motivational insights to keep you on track.
+                        </p>
+                        <div class="price-tag">$6.99</div>
+                        <div class="features-list text-start">
+                            <small class="text-muted">
+                                ✓ Visual habit tracking<br>
+                                ✓ Streak counters<br>
+                                ✓ Progress analytics<br>
+                                ✓ Motivational insights
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card module-card text-center">
+                    <div class="card-body p-4">
+                        <span class="module-icon">✨</span>
+                        <h5 class="card-title fw-bold">Digital Stickers</h5>
+                        <p class="card-text">
+                            Express yourself! Decorate diary entries with beautiful
+                            digital stickers and make your memories more vibrant.
+                        </p>
+                        <div class="price-tag">$4.99</div>
+                        <div class="features-list text-start">
+                            <small class="text-muted">
+                                ✓ 100+ beautiful stickers<br>
+                                ✓ Mood expressions<br>
+                                ✓ Seasonal collections<br>
+                                ✓ Custom placement
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="{% url 'shop:modules' %}" class="btn btn-primary btn-lg">
+                🛒 Explore All Modules
+            </a>
+        </div>
+    </section>
+</div>
+
+<!-- Call to Action Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h2 class="cta-title">Ready to Transform Your Life?</h2>
+                <p class="cta-subtitle">
+                    Join thousands of people who are already using AW Life Planner
+                    to build better habits, stay organized, and live more intentionally.
+                </p>
+
+                {% if not user.is_authenticated %}
+                    <div class="hero-buttons">
+                        <a class="btn btn-light btn-lg" href="{% url 'account_signup' %}">
+                            🚀 Start Your Free Journey
+                        </a>
+                        <a class="btn btn-outline-light btn-lg" href="{% url 'shop:modules' %}">
+                            👀 See What's Possible
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="hero-buttons">
+                        <a class="btn btn-light btn-lg" href="{% url 'diary:diary_home' %}">
+                            📔 Continue Your Journey
+                        </a>
+                        {% if not user.usermodule_set.exists %}
+                            <a class="btn btn-outline-light btn-lg" href="{% url 'shop:modules' %}">
+                                ✨ Unlock Premium Features
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add scroll animations
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate elements on scroll
+    const animateOnScroll = () => {
+        const elements = document.querySelectorAll('.animate-fade-up, .animate-slide-left, .animate-slide-right');
+
+        elements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0) translateX(0)';
+            }
+        });
+    };
+
+    // Initial check
+    animateOnScroll();
+
+    // Check on scroll
+    window.addEventListener('scroll', animateOnScroll);
+
+    // Add hover effects to cards
+    const cards = document.querySelectorAll('.feature-card, .module-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+});
+</script>
 {% endblock %}
