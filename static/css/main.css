@@ -170,6 +170,53 @@ body {
     margin-bottom: 0.5rem;
 }
 
+/* Enhanced Date input styling */
+input[type="date"] {
+    padding: 0.375rem 0.75rem !important;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 2px solid #ced4da;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="date"]:focus {
+    color: #212529;
+    background-color: #fff;
+    border-color: var(--primary-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(74, 144, 226, 0.25);
+}
+
+/* Remove text input appearance */
+input[type="date"]::-webkit-input-placeholder {
+    color: transparent;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+    color: #495057;
+}
+
+/* Show calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+}
+
 /* Alerts */
 .alert {
     border: none;
@@ -332,6 +379,152 @@ footer {
     margin-top: 3rem;
 }
 
+/* Enhanced Date input styling */
+input[type="date"] {
+    padding: 0.375rem 0.75rem !important;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 2px solid #ced4da;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    position: relative;
+}
+
+input[type="date"]:focus {
+    color: #212529;
+    background-color: #fff;
+    border-color: var(--primary-color, #4a90e2);
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(74, 144, 226, 0.25);
+}
+
+/* Ensure calendar icon is clickable */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+    opacity: 1;
+}
+
+/* Firefox date input styling */
+input[type="date"]::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/* Remove default styling for better cross-browser compatibility */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Prevent text selection in date input */
+input[type="date"] {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Form group spacing */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+    display: block;
+}
+
+.help-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Required field indicator */
+.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Form validation styling */
+.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+.is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+}
+
+/* Button styling */
+.btn {
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-primary {
+    background-color: var(--primary-color, #4a90e2);
+    border-color: var(--primary-color, #4a90e2);
+}
+
+.btn-primary:hover {
+    background-color: #357abd;
+    border-color: #357abd;
+    transform: translateY(-1px);
+}
+
+/* Card styling */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Cleaning schedule specific styling */
+.cleaning-task-card {
+    border-left: 4px solid #28a745;
+    margin-bottom: 1rem;
+}
+
+.cleaning-task-card.overdue {
+    border-left-color: #dc3545;
+}
+
+.task-actions {
+    margin-top: 0.5rem;
+}
+
+.task-actions .btn {
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
 /* Responsive Design */
 
 @media (max-width: 768px) {
@@ -354,6 +547,13 @@ footer {
     .btn-lg.ms-2 {
         margin-left: 0 !important;
         margin-top: 0.5rem;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    input[type="date"] {
+        font-size: 16px; /* Prevents zoom on iOS */
     }
 }
 

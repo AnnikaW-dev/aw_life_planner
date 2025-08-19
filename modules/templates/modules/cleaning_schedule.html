@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Cleaning Schedule{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>🧹 Cleaning Schedule</h1>
+        <p class="lead">Stay on top of your household cleaning tasks!</p>
+        <div class="mb-4">
+            <a href="{% url 'modules:add_cleaning_task' %}" class="btn btn-primary" >
+                📝 Add New Cleaning Task
+            </a>
+        </div>
+        <!-- Overdue Tasks -->
+        {% if overdue_tasks %}
+        <div class="alert alert-danger">
+            <h4>🚨 Overdue Tasks ({{ overdue_tasks.count }})</h4>
+            <div class="row">
+                {% for task in overdue_tasks %}
+                <div class="col-6 mb-3">
+                    <div class="card border-danger">
+                        <div class="card-body">
+                            <h5 class="card-title text-danger">{{ task.task_name }}</h5>
+                            <p class="card-text">
+                                <strong>📍 Room:</strong> {{ task.room }}<br>
+                                <strong>📅 Due:</strong> {{ task.next_due|date:"F d, Y" }}
+                                <span class="text-danger">({{ task.next_due|timesince }} overdue)</span><br>
+                                <strong>🔄 Frequency:</strong> {{ task.get_frequency_display }}
+                            </p>
+                            {% if task.notes %}
+                            <p><small class="text-muted">📝 {{ task.notes }}</small></p>
+                            {% endif %}
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'modules:complete_cleaning_task' task.id %}"
+                                   class="btn btn-success btn-sm">✅ Complete</a>
+                                <a href="{% url 'modules:edit_cleaning_task' task.id %}"
+                                   class="btn btn-primary btn-sm">✏️ Edit</a>
+                                <a href="{% url 'modules:delete_cleaning_task' task.id %}"
+                                   class="btn btn-danger btn-sm">🗑️ Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Upcomoing Tasks -->
+        {% if tasks %}
+        <h3>📋 All Cleaning Tasks</h3>
+        <div class="row">
+            {% for task in tasks %}
+            <div class="col-md-6 mb-3">
+                <div class="card {% if task in overdue_tasks %}border-danger{% elif task.next_due == today %}border-warning{% else %}border-success{% endif %}">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            {{ task.task_name }}
+                            {% if task.next_due == today %}
+                                <span class="badge bg-warning">Due Today</span>
+                            {% elif task in overdue_tasks %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% else %}
+                                <span class="badge bg-info">Upcomming</span>
+                            {% endif %}
+                        </h5>
+                        <p class="card-text">
+                            <strong>📍 Room:</strong> {{ task.room }}<br>
+                            <strong>📅 Next Due:</strong> {{ task.next_due|date:"F d, Y" }}<br>
+                            <strong>🔄 Frequency:</strong> {{ task.get_frequency_display }}<br>
+                            {% if task.last_completed %}
+                            <strong>✅ Last Done:</strong> {{ task.last_completed|date:"F d, Y" }}
+                            {% else %}
+                            <strong>✅ Last Done:</strong> <em>Never</em>
+                            {% endif %}
+                        </p>
+                        {% if task.notes %}
+                        <p><small class="textmuted">📝 {{ task.notes }}</small></p>
+                        {% endif %}
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'modules:complete_cleaning_task' task.id %}" class="btn btn-success btn-sm">✅ Complete</a>
+                            <a href="{% url 'modules:edit_cleaning_task' task.id %}" class="btn btn-primary btn-sm">✏️ Edit</a>
+                            <a href="{% url 'modules:delete_cleaning_task' task.id %}" class="btn btn-danger btn-sm">🗑️ Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <h4>🏠 No cleaning tasks yet!</h4>
+            <p>Start organizing your cleaning routine by adding your first task.</p>
+            <a href="{% url 'modules:add_cleaning_task' %}" class="btn btn-primary">📝 Add Your First Cleaning Task</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
