@@ -15,12 +15,15 @@
                 <div class="row">
                     <div class="col-lg-8 mb-4">
                         <div class="card shadow-sm">
-                            <div class="card-header">
-                                <h5 class="mb-0">Cart Items ({{ cart_items|length }})</h5>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Cart Items (<span id="cart-count">{{ cart_items|length }}</span>)</h5>
+                                <button class="btn btn-outline-danger btn-sm" onclick="clearCart()">
+                                    <i class="fas fa-trash me-1"></i>Clear Cart
+                                </button>
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
+                                    <table class="table table-hover mb-0" id="cart-table">
                                         <thead class="table-light">
                                             <tr>
                                                 <th>Module</th>
@@ -30,7 +33,7 @@
                                         </thead>
                                         <tbody>
                                             {% for item in cart_items %}
-                                                <tr>
+                                                <tr id="cart-item-{{ item.module.id }}" data-module-id="{{ item.module.id }}" data-price="{{ item.module.price }}">
                                                     <td>
                                                         <div class="d-flex align-items-center">
                                                             <div class="module-icon-small me-3">
@@ -50,7 +53,9 @@
                                                         <strong class="text-primary">${{ item.module.price }}</strong>
                                                     </td>
                                                     <td class="text-center">
-                                                        <button class="btn btn-outline-danger btn-sm" onclick="removeFromCart({{ item.module.id }})">
+                                                        <button class="btn btn-outline-danger btn-sm"
+                                                                onclick="removeFromCart({{ item.module.id }}, '{{ item.module.name|escapejs }}')"
+                                                                title="Remove from cart">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
                                                     </td>
@@ -71,7 +76,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-3">
                                     <span>Subtotal:</span>
-                                    <strong>${{ total }}</strong>
+                                    <strong id="cart-subtotal">${{ total }}</strong>
                                 </div>
                                 <div class="d-flex justify-content-between mb-3">
                                     <span>Tax:</span>
@@ -79,12 +84,12 @@
                                 </div>
                                 <hr>
                                 <div class="d-flex justify-content-between mb-4">
-                                    <strong>Total:</strong>
-                                    <strong class="text-primary">${{ total }}</strong>
+                                    <strong class="text-primary">Total:</strong>
+                                    <strong class="text-primary" id="cart-total">${{ total }}</strong>
                                 </div>
 
                                 <div class="d-grid gap-2">
-                                    <a href="{% url 'checkout:checkout' %}" class="btn btn-primary btn-lg">
+                                    <a href="{% url 'checkout:checkout' %}" class="btn btn-primary btn-lg" id="checkout-btn">
                                         <i class="fas fa-credit-card me-2"></i>
                                         Proceed to Checkout
                                     </a>
@@ -113,7 +118,7 @@
             {% else %}
                 <div class="row justify-content-center">
                     <div class="col-md-6">
-                        <div class="card text-center">
+                        <div class="card text-center" id="empty-cart">
                             <div class="card-body py-5">
                                 <div class="mb-4">
                                     <i class="fas fa-shopping-cart text-muted" style="font-size: 4rem;"></i>
@@ -132,13 +137,128 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-function removeFromCart(moduleId) {
-    if (confirm('Remove this item from your cart?')) {
-        // Add AJAX call to remove item
-        alert('Remove functionality coming soon!');
+// Get CSRF token function
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
+    return cookieValue;
+}
+
+// Remove individual item from cart
+function removeFromCart(moduleId, moduleName) {
+    if (confirm(`Are you sure you want to remove "${moduleName}" from your cart?`)) {
+        fetch(`/shop/remove-from-cart/${moduleId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the row with animation
+                const row = document.getElementById(`cart-item-${moduleId}`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+
+                // Update cart count and totals
+                updateCartDisplay(data);
+
+                // Show success message
+                showMessage('Item removed from cart successfully!', 'success');
+
+                // If cart is empty, reload page to show empty cart message
+                if (data.cart_count === 0) {
+                    setTimeout(() => location.reload(), 500);
+                }
+            } else {
+                showMessage(data.message || 'Failed to remove item.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Something went wrong. Please try again.', 'error');
+        });
+    }
+}
+
+// Clear entire cart
+function clearCart() {
+    if (confirm('Are you sure you want to clear your entire cart?')) {
+        fetch('/shop/clear-cart/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage('Cart cleared successfully!', 'success');
+                setTimeout(() => location.reload(), 500);
+            } else {
+                showMessage(data.message || 'Failed to clear cart.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Something went wrong. Please try again.', 'error');
+        });
+    }
+}
+
+// Update cart display
+function updateCartDisplay(data) {
+    document.getElementById('cart-count').textContent = data.cart_count;
+    document.getElementById('cart-subtotal').textContent = `$${data.cart_total.toFixed(2)}`;
+    document.getElementById('cart-total').textContent = `$${data.cart_total.toFixed(2)}`;
+
+    // Update navbar cart badge
+    const navCartBadge = document.querySelector('.navbar .badge');
+    if (navCartBadge) {
+        navCartBadge.textContent = data.cart_count;
+        navCartBadge.style.display = data.cart_count > 0 ? 'inline' : 'none';
+    }
+}
+
+// Show messages to user
+function showMessage(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+
+    // Insert at top of container
+    const container = document.querySelector('.container');
+    container.insertAdjacentHTML('afterbegin', alertHtml);
+
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) alert.remove();
+    }, 3000);
 }
 </script>
 {% endblock %}

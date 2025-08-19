@@ -1,12 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import get_user_model
 from django.contrib import messages
-
+from django.http import JsonResponse
 
 from .models import Module, UserModule
-
-User = get_user_model()
 
 
 def all_modules(request):
@@ -55,7 +52,7 @@ def add_to_cart(request, module_id):
         messages.error(request, 'You already own this module!')
         return redirect('shop:module_detail', module_id=module_id)
 
-    # Get the cart from session or createempty dict
+    # Get the cart from session or create empty dict
     cart = request.session.get('cart', {})
 
     # Add module to cart
@@ -63,13 +60,13 @@ def add_to_cart(request, module_id):
 
     # Save cart back to session
     request.session['cart'] = cart
-    messages.success(request, f'{module.name} added to the cart!')
+    messages.success(request, f'{module.name} added to cart!')
 
     return redirect('shop:modules')
 
 
 def view_cart(request):
-    """ Display the shopping cart """
+    """Display the shopping cart"""
     cart = request.session.get('cart', {})
     cart_items = []
     total = 0
@@ -79,7 +76,7 @@ def view_cart(request):
         total += module.price
         cart_items.append({
             'module': module,
-            'quatity': quantity
+            'quantity': quantity,
         })
     context = {
         'cart_items': cart_items,
@@ -87,3 +84,48 @@ def view_cart(request):
     }
 
     return render(request, 'shop/cart.html', context)
+
+
+@login_required
+def remove_from_cart(request, module_id):
+    """ Remove a module from the shopping cart via AJAX """
+    if request.method == 'POST':
+        cart = request.session.get('cart', {})
+        if str(module_id) in cart:
+            del cart[str(module_id)]
+            request.session['cart'] = cart
+
+            # Calculate new total
+            total = 0
+
+            for mid in cart.keys():
+                module = Module.objects.get(pk=mid)
+                total += module.price
+
+            return JsonResponse({
+                'success': True,
+                'cart_count': len(cart),
+                'cart_total': float(total),
+                'message': 'Item removed successfully!'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Item not found in cart'
+            })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+@login_required
+def clear_cart(request):
+    """ Clear the entire shopping cart via AJAX """
+    if request.method == 'POST':
+        request.session['cart'] = {}
+        return JsonResponse({
+            'success': True,
+            'cart_count': 0,
+            'cart_total': 0.0,
+            'message': 'Cart cleared successfully!'
+        })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
