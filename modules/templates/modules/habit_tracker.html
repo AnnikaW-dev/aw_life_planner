@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Habit Tracker{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>✅ Habit Tracker</h1>
+                <a href="{% url 'modules:add_habit' %}" class="btn btn-primary">
+                    📝 Add New Habit
+                </a>
+            </div>
+
+            {% if habits %}
+                <div class="row">
+                    {% for habit in habits %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card habit-card">
+                                <div class="card-header" style="background-color: {{ habit.color }}20; border-left: 4px solid {{ habit.color }};">
+                                    <h6 class="mb-0" style="color: {{ habit.color }};">{{ habit.habit_name }}</h6>
+                                </div>
+                                <div class="card-body">
+                                    {% if habit.description %}
+                                        <p class="card-text">{{ habit.description|truncatewords:15 }}</p>
+                                    {% endif %}
+                                        <p class="card-text">
+                                            <strong>🎯 Target:</strong> {{ habit.get_target_frequency_display }}<br>
+                                            <strong>📅 Started:</strong> {{ habit.created_at|date:"M d, Y" }}
+                                        </p>
+
+                                    <!-- Habit streak or progress will go here -->
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar" style="background-color: {{ habit.color }}; width: 75%"></div>
+                                    </div>
+                                    <small class="text-muted">7-day streak • 75% completion rate</small>
+                                    <div class="habit-actions mt-3">
+                                        <button class="btn btn-success btn-sm" onclick="logHabit({{ habit.id }})">
+                                            ✅ Mark Done Today
+                                        </button>
+                                        <a href="{% url 'modules:edit_habit' habit.id %}" class="btn btn-warning btn-sm">
+                                            ✏️ Edit
+                                        </a>
+                                        <a href="{% url 'modules:delete_habit' habit.id %}" class="btn btn-danger btn-sm">
+                                            🗑️ Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Habit Calender/Log view -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">📊 This Week's Progress</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Habit</th>
+                                                <th>Mon</th>
+                                                <th>Tue</th>
+                                                <th>Wed</th>
+                                                <th>Thu</th>
+                                                <th>Fri</th>
+                                                <th>Sat</th>
+                                                <th>Sun</th>
+                                                <th>Week Score</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for habit in habits %}
+                                            <tr>
+                                                <td>
+                                                    <span class="habit-color-dot"
+                                                        style="background-color: {{ habit.color }};"></span>
+                                                    {{ habit.habit_name }}
+                                                </td>
+                                                <td><span class="habit-day completed">✅</span></td>
+                                                <td><span class="habit-day completed">✅</span></td>
+                                                <td><span class="habit-day missed">❌</span></td>
+                                                <td><span class="habit-day completed">✅</span></td>
+                                                <td><span class="habit-day completed">✅</span></td>
+                                                <td><span class="habit-day pending">⏳</span></td>
+                                                <td><span class="habit-day pending">⏳</span></td>
+                                                <td><strong>4/5 (80%)</strong></td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <small class="text-muted">✅ = Completed, ❌ = Missed, ⏳ = Pending</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <div class="card">
+                        <div class="card-body py-5">
+                            <h3>🎯 No habits tracked yet!</h3>
+                            <p class="lead">Start building better habits by tracking your daily activities.</p>
+                            <a href="{% url 'modules:add_habit' %}" class="btn btn-primary btn-lg">
+                                📝 Add Your First Habit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% block extra_js %}
+    <script>
+        function logHabit(habitId) {
+            // This would typically make an AJAX call to log the habit
+            alert('Habit logged for today! (Feature coming soon)');
+        }
+    </script>
+{% endblock %}

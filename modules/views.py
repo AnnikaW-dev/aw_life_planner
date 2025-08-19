@@ -168,3 +168,65 @@ def habit_tracker(request):
         'habits': habits,
     }
     return render(request, 'modules/habit_tracker.html', context)
+
+
+@login_required
+def add_habit(request):
+    """Add habit view"""
+    if not check_module_access(request.user, 'habit_tracker'):
+        messages.error(request, 'You need to purchase the Habit Tracker module to access this feature.')
+        return redirect('shop:modules')
+
+    if request.method == 'POST':
+        form = HabitTrackerForm(request.POST)
+        if form.is_valid():
+            habit = form.save(commit=False)
+            habit.user = request.user
+            habit.save()
+            messages.success(request, f'Habit "{habit.habit_name}" added successfully!')
+            return redirect('modules:habit_tracker')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = HabitTrackerForm()
+
+    return render(request, 'modules/add_habit.html', {'form': form})
+
+@login_required
+def edit_habit(request, habit_id):
+    """Edit habit view"""
+    if not check_module_access(request.user, 'habit_tracker'):
+        messages.error(request, 'You need to purchase the Habit Tracker module to access this feature.')
+        return redirect('shop:modules')
+
+    habit = get_object_or_404(HabitTracker, id=habit_id, user=request.user)
+
+    if request.method == 'POST':
+        form = HabitTrackerForm(request.POST, instance=habit)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Habit "{habit.habit_name}" updated successfully!')
+            return redirect('modules:habit_tracker')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = HabitTrackerForm(instance=habit)
+
+    return render(request, 'modules/edit_habit.html', {'form': form, 'habit': habit})
+
+@login_required
+def delete_habit(request, habit_id):
+    """Delete habit view"""
+    if not check_module_access(request.user, 'habit_tracker'):
+        messages.error(request, 'You need to purchase the Habit Tracker module to access this feature.')
+        return redirect('shop:modules')
+
+    habit = get_object_or_404(HabitTracker, id=habit_id, user=request.user)
+
+    if request.method == 'POST':
+        habit_name = habit.habit_name
+        habit.delete()
+        messages.success(request, f'Habit "{habit_name}" deleted successfully!')
+        return redirect('modules:habit_tracker')
+
+    return render(request, 'modules/delete_habit.html', {'habit': habit})
