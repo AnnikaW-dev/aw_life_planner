@@ -4,112 +4,118 @@
 
 {% block content %}
 <div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>✅ Habit Tracker</h1>
-                <a href="{% url 'modules:add_habit' %}" class="btn btn-primary">
-                    📝 Add New Habit
-                </a>
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="page-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="display-5 mb-2">✅ Habit Tracker</h1>
+                        <p class="text-muted">Build better habits, one day at a time</p>
+                    </div>
+                    <a href="{% url 'modules:add_habit' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New Habit
+                    </a>
+                </div>
             </div>
 
-            {% if habits %}
+            {% if habit_data %}
                 <div class="row">
-                    {% for habit in habits %}
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="card habit-card">
-                                <div class="card-header" style="background-color: {{ habit.color }}20; border-left: 4px solid {{ habit.color }};">
-                                    <h6 class="mb-0" style="color: {{ habit.color }};">{{ habit.habit_name }}</h6>
-                                </div>
+                    {% for data in habit_data %}
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card h-100 habit-card" data-habit-id="{{ data.habit.id }}">
                                 <div class="card-body">
-                                    {% if habit.description %}
-                                        <p class="card-text">{{ habit.description|truncatewords:15 }}</p>
-                                    {% endif %}
-                                        <p class="card-text">
-                                            <strong>🎯 Target:</strong> {{ habit.get_target_frequency_display }}<br>
-                                            <strong>📅 Started:</strong> {{ habit.created_at|date:"M d, Y" }}
-                                        </p>
-
-                                    <!-- Habit streak or progress will go here -->
-                                    <div class="progress mb-2">
-                                        <div class="progress-bar" style="background-color: {{ habit.color }}; width: 75%"></div>
+                                    <!-- Habit Header -->
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="habit-color-indicator" style="background-color: {{ data.habit.color }}; width: 4px; height: 60px; border-radius: 2px;"></div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h5 class="card-title mb-1" style="color: {{ data.habit.color }};">
+                                                {{ data.habit.habit_name }}
+                                            </h5>
+                                            <small class="text-muted">{{ data.habit.get_target_frequency_display }}</small>
+                                        </div>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="{% url 'modules:edit_habit' data.habit.id %}">
+                                                    <i class="fas fa-edit me-2"></i>Edit
+                                                </a></li>
+                                                <li><a class="dropdown-item text-danger" href="{% url 'modules:delete_habit' data.habit.id %}">
+                                                    <i class="fas fa-trash me-2"></i>Delete
+                                                </a></li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <small class="text-muted">7-day streak • 75% completion rate</small>
-                                    <div class="habit-actions mt-3">
-                                        <button class="btn btn-success btn-sm" onclick="logHabit({{ habit.id }})">
-                                            ✅ Mark Done Today
+
+                                    <!-- Habit Description -->
+                                    {% if data.habit.description %}
+                                        <p class="card-text text-muted small mb-3">{{ data.habit.description }}</p>
+                                    {% endif %}
+
+                                    <!-- Streak Counter -->
+                                    <div class="streak-display mb-3 text-center">
+                                        <div class="streak-number display-6 fw-bold" style="color: {{ data.habit.color }};" id="streak-{{ data.habit.id }}">
+                                            {{ data.streak }}
+                                        </div>
+                                        <small class="text-muted">day{{ data.streak|pluralize }} streak</small>
+                                    </div>
+
+                                    <!-- Today's Status -->
+                                    <div class="today-status text-center">
+                                        <p class="mb-2"><strong>Today ({{ today|date:"M d" }}):</strong></p>
+                                        <button class="btn btn-lg habit-toggle-btn {% if data.completed_today %}btn-success{% else %}btn-outline-success{% endif %}"
+                                                onclick="toggleHabit({{ data.habit.id }})"
+                                                id="toggle-btn-{{ data.habit.id }}">
+                                            <i class="fas {% if data.completed_today %}fa-check-circle{% else %}fa-circle{% endif %} me-2"
+                                               id="toggle-icon-{{ data.habit.id }}"></i>
+                                            <span id="toggle-text-{{ data.habit.id }}">
+                                                {% if data.completed_today %}Completed!{% else %}Mark Done{% endif %}
+                                            </span>
                                         </button>
-                                        <a href="{% url 'modules:edit_habit' habit.id %}" class="btn btn-warning btn-sm">
-                                            ✏️ Edit
-                                        </a>
-                                        <a href="{% url 'modules:delete_habit' habit.id %}" class="btn btn-danger btn-sm">
-                                            🗑️ Delete
-                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
-
-                <!-- Habit Calender/Log view -->
-                <div class="row mt-4">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0">📊 This Week's Progress</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Habit</th>
-                                                <th>Mon</th>
-                                                <th>Tue</th>
-                                                <th>Wed</th>
-                                                <th>Thu</th>
-                                                <th>Fri</th>
-                                                <th>Sat</th>
-                                                <th>Sun</th>
-                                                <th>Week Score</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for habit in habits %}
-                                            <tr>
-                                                <td>
-                                                    <span class="habit-color-dot"
-                                                        style="background-color: {{ habit.color }};"></span>
-                                                    {{ habit.habit_name }}
-                                                </td>
-                                                <td><span class="habit-day completed">✅</span></td>
-                                                <td><span class="habit-day completed">✅</span></td>
-                                                <td><span class="habit-day missed">❌</span></td>
-                                                <td><span class="habit-day completed">✅</span></td>
-                                                <td><span class="habit-day completed">✅</span></td>
-                                                <td><span class="habit-day pending">⏳</span></td>
-                                                <td><span class="habit-day pending">⏳</span></td>
-                                                <td><strong>4/5 (80%)</strong></td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
+            {% else %}
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="card text-center">
+                            <div class="card-body py-5">
+                                <div class="mb-4">
+                                    <i class="fas fa-seedling text-muted" style="font-size: 4rem;"></i>
                                 </div>
-                                <small class="text-muted">✅ = Completed, ❌ = Missed, ⏳ = Pending</small>
+                                <h3 class="mb-3">Start Building Great Habits!</h3>
+                                <p class="text-muted mb-4">Create your first habit and begin your journey to a better you.</p>
+                                <a href="{% url 'modules:add_habit' %}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-plus me-2"></i>Add Your First Habit
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
-            {% else %}
-                <div class="text-center">
-                    <div class="card">
-                        <div class="card-body py-5">
-                            <h3>🎯 No habits tracked yet!</h3>
-                            <p class="lead">Start building better habits by tracking your daily activities.</p>
-                            <a href="{% url 'modules:add_habit' %}" class="btn btn-primary btn-lg">
-                                📝 Add Your First Habit
-                            </a>
+            {% endif %}
+
+            <!-- Tips Section -->
+            {% if habit_data %}
+                <div class="card mt-5 bg-light border-0">
+                    <div class="card-body">
+                        <h5 class="card-title">💡 Tips for Success</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p class="mb-2"><strong>Start Small:</strong></p>
+                                <small class="text-muted">Begin with habits that take less than 2 minutes to complete.</small>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-2"><strong>Be Consistent:</strong></p>
+                                <small class="text-muted">Focus on consistency over intensity. Daily small actions compound.</small>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-2"><strong>Track Progress:</strong></p>
+                                <small class="text-muted">Mark your habits done each day to maintain momentum.</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -119,13 +125,151 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+.habit-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
+.habit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.habit-toggle-btn {
+    min-width: 140px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.habit-toggle-btn:hover {
+    transform: scale(1.05);
+}
+
+.streak-display {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 15px;
+}
+
+.habit-color-indicator {
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .habit-toggle-btn {
+        min-width: 120px;
+        font-size: 0.9rem;
+    }
+
+    .streak-number {
+        font-size: 2rem !important;
+    }
+}
+</style>
+{% endblock %}
 
 {% block extra_js %}
-    <script>
-        function logHabit(habitId) {
-            // This would typically make an AJAX call to log the habit
-            alert('Habit logged for today! (Feature coming soon)');
+<script>
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
         }
-    </script>
+    }
+    return cookieValue;
+}
+
+// Toggle habit completion
+function toggleHabit(habitId) {
+    const button = document.getElementById(`toggle-btn-${habitId}`);
+    const icon = document.getElementById(`toggle-icon-${habitId}`);
+    const text = document.getElementById(`toggle-text-${habitId}`);
+    const streak = document.getElementById(`streak-${habitId}`);
+
+    // Disable button temporarily
+    button.disabled = true;
+
+    fetch(`/modules/habit-tracker/toggle/${habitId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update button appearance
+            if (data.completed) {
+                button.className = 'btn btn-lg habit-toggle-btn btn-success';
+                icon.className = 'fas fa-check-circle me-2';
+                text.textContent = 'Completed!';
+            } else {
+                button.className = 'btn btn-lg habit-toggle-btn btn-outline-success';
+                icon.className = 'fas fa-circle me-2';
+                text.textContent = 'Mark Done';
+            }
+
+            // Update streak
+            streak.textContent = data.streak;
+
+            // Show success animation
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 150);
+
+            // Show success message
+            showMessage(data.message, 'success');
+        } else {
+            showMessage(data.message || 'Failed to update habit.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('Something went wrong. Please try again.', 'error');
+    })
+    .finally(() => {
+        button.disabled = false;
+    });
+}
+
+// Show messages to user (using your original Django message system)
+function showMessage(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+
+    // Insert at top of main container (like your original Django messages)
+    const container = document.querySelector('.container');
+    if (container) {
+        container.insertAdjacentHTML('afterbegin', alertHtml);
+    }
+
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) alert.remove();
+    }, 3000);
+}
+</script>
 {% endblock %}

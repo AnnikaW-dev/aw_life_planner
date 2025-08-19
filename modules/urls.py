@@ -21,4 +21,5 @@ urlpatterns = [
     path('habit-tracker/add/', views.add_habit, name='add_habit'),
     path('habit-tracker/edit/<int:habit_id>/', views.edit_habit, name='edit_habit'),
     path('habit-tracker/delete/<int:habit_id>/', views.delete_habit, name='delete_habit'),
+    path('habit-tracker/toggle/<int:habit_id>/', views.toggle_habit, name='toggle_habit'),
 ]

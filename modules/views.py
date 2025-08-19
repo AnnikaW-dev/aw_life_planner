@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.http import JsonResponse
 from datetime import timedelta
 from shop.models import UserModule
 from .models import MealPlan, CleaningTask, HabitTracker, HabitLog
@@ -31,6 +32,7 @@ def meal_planner(request):
     }
     return render(request, 'modules/meal_planner.html', context)
 
+
 @login_required
 def add_meal_plan(request):
     """Add meal plan view"""
@@ -51,6 +53,7 @@ def add_meal_plan(request):
 
     return render(request, 'modules/add_meal_plan.html', {'form': form})
 
+
 @login_required
 def cleaning_schedule(request):
     """Cleaning schedule view"""
@@ -68,6 +71,7 @@ def cleaning_schedule(request):
         'today': today,
     }
     return render(request, 'modules/cleaning_schedule.html', context)
+
 
 @login_required
 def add_cleaning_task(request):
@@ -91,6 +95,7 @@ def add_cleaning_task(request):
 
     return render(request, 'modules/add_cleaning_task.html', {'form': form})
 
+
 @login_required
 def edit_cleaning_task(request, task_id):
     """Edit cleaning task view"""
@@ -113,6 +118,7 @@ def edit_cleaning_task(request, task_id):
 
     return render(request, 'modules/edit_cleaning_task.html', {'form': form, 'task': task})
 
+
 @login_required
 def delete_cleaning_task(request, task_id):
     """Delete cleaning task view"""
@@ -129,6 +135,7 @@ def delete_cleaning_task(request, task_id):
         return redirect('modules:cleaning_schedule')
 
     return render(request, 'modules/delete_cleaning_task.html', {'task': task})
+
 
 @login_required
 def complete_cleaning_task(request, task_id):
@@ -155,18 +162,37 @@ def complete_cleaning_task(request, task_id):
     messages.success(request, f'Task "{task.task_name}" marked as complete! Next due: {task.next_due}')
     return redirect('modules:cleaning_schedule')
 
+
 @login_required
 def habit_tracker(request):
-    """Habit tracker view"""
+    """Display habit tracker with today's progress"""
     if not check_module_access(request.user, 'habit_tracker'):
         messages.error(request, 'You need to purchase the Habit Tracker module to access this feature.')
         return redirect('shop:modules')
 
     habits = HabitTracker.objects.filter(user=request.user, is_active=True)
+    today = timezone.now().date()
+    # Get today's habit logs for each habit
+    habit_data = []
 
+    for habit in habits:
+        try:
+            habit_log = HabitLog.objects.get(habit=habit, date=today)
+            completed_today = habit_log.completed
+        except HabitLog.DoesNotExist:
+            completed_today = False
+        # Calculate current streak
+        streak = calculate_habit_streak(habit)
+        habit_data.append({
+            'habit': habit,
+            'completed_today': completed_today,
+            'streak': streak,
+        })
     context = {
-        'habits': habits,
+        'habit_data': habit_data,
+        'today': today,
     }
+
     return render(request, 'modules/habit_tracker.html', context)
 
 
@@ -185,12 +211,41 @@ def add_habit(request):
             habit.save()
             messages.success(request, f'Habit "{habit.habit_name}" added successfully!')
             return redirect('modules:habit_tracker')
-        else:
-            messages.error(request, 'Please correct the errors below.')
     else:
         form = HabitTrackerForm()
 
     return render(request, 'modules/add_habit.html', {'form': form})
+
+
+@login_required
+def toggle_habit(request, habit_id):
+    """Toggle habit completion for today via AJAX"""
+    if request.method == 'POST':
+        habit = get_object_or_404(HabitTracker, id=habit_id, user=request.user)
+        today = timezone.now().date()
+
+        # Get or create today's habit log
+        habit_log, created = HabitLog.objects.get_or_create(
+            habit=habit,
+            date=today,
+            defaults={'completed': False}
+        )
+        # Toggle completion status
+        habit_log.completed = not habit_log.completed
+        habit_log.save()
+
+        # Calculate new streak
+        streak = calculate_habit_streak(habit)
+
+        return JsonResponse({
+            'success': True,
+            'completed': habit_log.completed,
+            'streak': streak,
+            'message': f'Habit {"completed" if habit_log.completed else "unchecked"} for today!'
+        })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
 
 @login_required
 def edit_habit(request, habit_id):
@@ -207,12 +262,11 @@ def edit_habit(request, habit_id):
             form.save()
             messages.success(request, f'Habit "{habit.habit_name}" updated successfully!')
             return redirect('modules:habit_tracker')
-        else:
-            messages.error(request, 'Please correct the errors below.')
     else:
         form = HabitTrackerForm(instance=habit)
 
     return render(request, 'modules/edit_habit.html', {'form': form, 'habit': habit})
+
 
 @login_required
 def delete_habit(request, habit_id):
@@ -230,3 +284,24 @@ def delete_habit(request, habit_id):
         return redirect('modules:habit_tracker')
 
     return render(request, 'modules/delete_habit.html', {'habit': habit})
+
+
+def calculate_habit_streak(habit):
+    """Calculate current streak for a habit"""
+    today = timezone.now().date()
+    streak = 0
+    current_date = today
+
+    # Count backwards from today to find consecutive completed days
+    while True:
+        try:
+            log = HabitLog.objects.get(habit=habit, date=current_date)
+            if log.completed:
+                streak += 1
+                current_date -= timezone.timedelta(days=1)
+            else:
+                break
+        except HabitLog.DoesNotExist:
+            break
+
+    return streak
