@@ -1,100 +1,113 @@
+<!-- modules/templates/modules/add_meal_plan.html -->
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Add New Habit{% endblock %}
+{% block title %}Add Meal Plan{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow">
-                <div class="card-header text-center">
-                    <h2 class="mb-0">✅ Add New Habit</h2>
-                    <p class="text-muted mb-0">Start building a positive routine</p>
-                </div>
-                <div class="card-body">
-                    <form method="post" id="habit-form">
-                        {% csrf_token %}
-
-                        <!-- Habit Name -->
-                        <div class="mb-3">
-                            <label for="{{ form.habit_name.id_for_label }}" class="form-label">
-                                <i class="fas fa-target me-2"></i>Habit Name
-                            </label>
-                            {{ form.habit_name }}
-                            {% if form.habit_name.help_text %}
-                                <div class="form-text">{{ form.habit_name.help_text }}</div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Description -->
-                        <div class="mb-3">
-                            <label for="{{ form.description.id_for_label }}" class="form-label">
-                                <i class="fas fa-info-circle me-2"></i>Description <span class="text-muted">(Optional)</span>
-                            </label>
-                            {{ form.description }}
-                            <div class="form-text">Why is this habit important to you?</div>
-                        </div>
-
-                        <!-- Target Frequency -->
-                        <div class="mb-3">
-                            <label for="{{ form.target_frequency.id_for_label }}" class="form-label">
-                                <i class="fas fa-calendar-alt me-2"></i>Target Frequency
-                            </label>
-                            {{ form.target_frequency }}
-                            <div class="form-text">How often do you want to perform this habit?</div>
-                        </div>
-
-                        <!-- Color Picker -->
-                        <div class="mb-4">
-                            <label for="{{ form.color.id_for_label }}" class="form-label">
-                                <i class="fas fa-palette me-2"></i>Color Theme
-                            </label>
-                            <div class="d-flex align-items-center">
-                                {{ form.color }}
-                                <div class="ms-3">
-                                    <div id="color-preview" class="color-preview-circle" style="background-color: #3498db;"></div>
-                                </div>
-                            </div>
-                            <div class="form-text">Choose a color that represents this habit</div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary flex-fill">
-                                <i class="fas fa-plus me-2"></i>Create Habit
-                            </button>
-                            <a href="{% url 'modules:habit_tracker' %}" class="btn btn-outline-secondary flex-fill">
-                                <i class="fas fa-times me-2"></i>Cancel
-                            </a>
-                        </div>
-                    </form>
-                </div>
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h2>📝 Add New Meal Plan</h2>
             </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
 
-            <!-- Tips Card -->
-            <div class="card mt-4 bg-light border-0">
-                <div class="card-body">
-                    <h5 class="card-title">💡 Habit Building Tips</h5>
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            <strong>Start small:</strong> Choose habits that take 2 minutes or less
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            <strong>Be specific:</strong> "Read 10 pages" instead of "Read more"
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            <strong>Stack habits:</strong> Link new habits to existing routines
-                        </li>
-                        <li>
-                            <i class="fas fa-check text-success me-2"></i>
-                            <strong>Track daily:</strong> Consistency beats intensity
-                        </li>
-                    </ul>
-                </div>
+                    <!-- Date Field -->
+                    <div class="mb-3">
+                        <label for="{{ form.date.id_for_label }}" class="form-label">📅 Date</label>
+                        {{ form.date }}
+                        {% if form.date.help_text %}
+                        <div class="form-text">{{ form.date.help_text }}</div>
+                        {% endif %}
+                        {% if form.date.errors %}
+                        <div class="text-danger">{{ form.date.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Breakfast Field -->
+                    <div class="mb-3">
+                        <label for="{{ form.breakfast.id_for_label }}" class="form-label">🌅 Breakfast</label>
+                        {{ form.breakfast }}
+                        {% if form.breakfast.help_text %}
+                        <div class="form-text">{{ form.breakfast.help_text }}</div>
+                        {% endif %}
+                        {% if form.breakfast.errors %}
+                        <div class="text-danger">{{ form.breakfast.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Lunch Field -->
+                    <div class="mb-3">
+                        <label for="{{ form.lunch.id_for_label }}" class="form-label">☀️ Lunch</label>
+                        {{ form.lunch }}
+                        {% if form.lunch.help_text %}
+                        <div class="form-text">{{ form.lunch.help_text }}</div>
+                        {% endif %}
+                        {% if form.lunch.errors %}
+                        <div class="text-danger">{{ form.lunch.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Dinner Field -->
+                    <div class="mb-3">
+                        <label for="{{ form.dinner.id_for_label }}" class="form-label">🌙 Dinner</label>
+                        {{ form.dinner }}
+                        {% if form.dinner.help_text %}
+                        <div class="form-text">{{ form.dinner.help_text }}</div>
+                        {% endif %}
+                        {% if form.dinner.errors %}
+                        <div class="text-danger">{{ form.dinner.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Snacks Field -->
+                    <div class="mb-3">
+                        <label for="{{ form.snacks.id_for_label }}" class="form-label">🍿 Snacks</label>
+                        {{ form.snacks }}
+                        {% if form.snacks.help_text %}
+                        <div class="form-text">{{ form.snacks.help_text }}</div>
+                        {% endif %}
+                        {% if form.snacks.errors %}
+                        <div class="text-danger">{{ form.snacks.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Water Intake Field -->
+                    <div class="mb-3">
+                        <label for="{{ form.water_intake.id_for_label }}" class="form-label">💧 Water Intake (glasses)</label>
+                        <div class="input-group">
+                            {{ form.water_intake }}
+                            <span class="input-group-text">glasses</span>
+                        </div>
+                        {% if form.water_intake.help_text %}
+                        <div class="form-text">{{ form.water_intake.help_text }}</div>
+                        {% endif %}
+                        {% if form.water_intake.errors %}
+                        <div class="text-danger">{{ form.water_intake.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Notes Field -->
+                    <div class="mb-3">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label">📝 Notes</label>
+                        {{ form.notes }}
+                        {% if form.notes.help_text %}
+                        <div class="form-text">{{ form.notes.help_text }}</div>
+                        {% endif %}
+                        {% if form.notes.errors %}
+                        <div class="text-danger">{{ form.notes.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'modules:meal_planner' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">💾 Save Meal Plan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -103,95 +116,23 @@
 
 {% block extra_css %}
 <style>
-.color-preview-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 3px solid #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
-}
-
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.25rem rgba(74, 144, 226, 0.25);
-}
-
 .card {
-    border: none;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.card-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #357abd 100%);
-    color: white;
-    border-bottom: none;
+.form-label {
+    font-weight: 600;
+    color: #495057;
 }
 
-@media (max-width: 768px) {
-    .d-flex.gap-2 {
-        flex-direction: column;
-    }
+.btn-primary {
+    background-color: #4a90e2;
+    border-color: #4a90e2;
+}
 
-    .d-flex.gap-2 .btn {
-        margin-bottom: 0.5rem;
-    }
+.btn-primary:hover {
+    background-color: #357abd;
+    border-color: #357abd;
 }
 </style>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const colorInput = document.getElementById('{{ form.color.id_for_label }}');
-    const colorPreview = document.getElementById('color-preview');
-
-    // Update color preview when color changes
-    if (colorInput && colorPreview) {
-        colorInput.addEventListener('input', function() {
-            colorPreview.style.backgroundColor = this.value;
-        });
-
-        // Set initial color
-        colorPreview.style.backgroundColor = colorInput.value;
-    }
-
-    // Form validation
-    const form = document.getElementById('habit-form');
-    form.addEventListener('submit', function(e) {
-        const habitName = document.getElementById('{{ form.habit_name.id_for_label }}');
-
-        if (habitName.value.trim().length < 2) {
-            e.preventDefault();
-            habitName.focus();
-            showMessage('Habit name must be at least 2 characters long.', 'error');
-            return false;
-        }
-    });
-});
-
-// Show messages to user (using your original Django message system)
-function showMessage(message, type) {
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-
-    const alertHtml = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-
-    // Insert at top of main container (like your original Django messages)
-    const container = document.querySelector('.container');
-    if (container) {
-        container.insertAdjacentHTML('afterbegin', alertHtml);
-    }
-
-    // Auto-dismiss after 3 seconds
-    setTimeout(() => {
-        const alert = document.querySelector('.alert');
-        if (alert) alert.remove();
-    }, 3000);
-}
-</script>
 {% endblock %}

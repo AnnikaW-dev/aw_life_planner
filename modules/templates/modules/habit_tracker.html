@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Habit Tracker{% endblock %}
 
@@ -65,7 +66,7 @@
                                     <div class="today-status text-center">
                                         <p class="mb-2"><strong>Today ({{ today|date:"M d" }}):</strong></p>
                                         <button class="btn btn-lg habit-toggle-btn {% if data.completed_today %}btn-success{% else %}btn-outline-success{% endif %}"
-                                                onclick="toggleHabit({{ data.habit.id }})"
+                                                ({{ data.habit.id }})"
                                                 id="toggle-btn-{{ data.habit.id }}">
                                             <i class="fas {% if data.completed_today %}fa-check-circle{% else %}fa-circle{% endif %} me-2"
                                                id="toggle-icon-{{ data.habit.id }}"></i>
@@ -175,101 +176,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-// Get CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-// Toggle habit completion
-function toggleHabit(habitId) {
-    const button = document.getElementById(`toggle-btn-${habitId}`);
-    const icon = document.getElementById(`toggle-icon-${habitId}`);
-    const text = document.getElementById(`toggle-text-${habitId}`);
-    const streak = document.getElementById(`streak-${habitId}`);
-
-    // Disable button temporarily
-    button.disabled = true;
-
-    fetch(`/modules/habit-tracker/toggle/${habitId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update button appearance
-            if (data.completed) {
-                button.className = 'btn btn-lg habit-toggle-btn btn-success';
-                icon.className = 'fas fa-check-circle me-2';
-                text.textContent = 'Completed!';
-            } else {
-                button.className = 'btn btn-lg habit-toggle-btn btn-outline-success';
-                icon.className = 'fas fa-circle me-2';
-                text.textContent = 'Mark Done';
-            }
-
-            // Update streak
-            streak.textContent = data.streak;
-
-            // Show success animation
-            button.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                button.style.transform = 'scale(1)';
-            }, 150);
-
-            // Show success message
-            showMessage(data.message, 'success');
-        } else {
-            showMessage(data.message || 'Failed to update habit.', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showMessage('Something went wrong. Please try again.', 'error');
-    })
-    .finally(() => {
-        button.disabled = false;
-    });
-}
-
-// Show messages to user (using your original Django message system)
-function showMessage(message, type) {
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-
-    const alertHtml = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-
-    // Insert at top of main container (like your original Django messages)
-    const container = document.querySelector('.container');
-    if (container) {
-        container.insertAdjacentHTML('afterbegin', alertHtml);
-    }
-
-    // Auto-dismiss after 3 seconds
-    setTimeout(() => {
-        const alert = document.querySelector('.alert');
-        if (alert) alert.remove();
-    }, 3000);
-}
-</script>
+<script src="{% static 'js/habit-tracker.js' %}"></script>
 {% endblock %}

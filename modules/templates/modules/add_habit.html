@@ -1,142 +1,100 @@
-<!-- modules/templates/modules/add_habit.html -->
 {% extends 'base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block title %}Add New Habit{% endblock %}
-
-{% block extra_css %}
-<style>
-    .color-preview {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        border: 2px solid #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        display: inline-block;
-        margin-left: 10px;
-        vertical-align: middle;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #333;
-    }
-
-    .help-text {
-        font-size: 0.875rem;
-        color: #6c757d;
-        margin-top: 0.25rem;
-    }
-
-    input[type="color"] {
-        width: 60px;
-        height: 40px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-8 col-lg-6">
             <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">✅ Add New Habit</h3>
+                <div class="card-header text-center">
+                    <h2 class="mb-0">✅ Add New Habit</h2>
+                    <p class="text-muted mb-0">Start building a positive routine</p>
                 </div>
                 <div class="card-body">
                     <form method="post" id="habit-form">
                         {% csrf_token %}
 
-                        <div class="form-group">
+                        <!-- Habit Name -->
+                        <div class="mb-3">
                             <label for="{{ form.habit_name.id_for_label }}" class="form-label">
-                                Habit Name <span class="text-danger">*</span>
+                                <i class="fas fa-target me-2"></i>Habit Name
                             </label>
                             {{ form.habit_name }}
-                            {% if form.habit_name.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.habit_name.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
+                            {% if form.habit_name.help_text %}
+                                <div class="form-text">{{ form.habit_name.help_text }}</div>
                             {% endif %}
-                            <div class="help-text">What habit do you want to track? (e.g., "Drink 8 glasses of water")</div>
                         </div>
 
-                        <div class="form-group">
+                        <!-- Description -->
+                        <div class="mb-3">
                             <label for="{{ form.description.id_for_label }}" class="form-label">
-                                Description (Optional)
+                                <i class="fas fa-info-circle me-2"></i>Description <span class="text-muted">(Optional)</span>
                             </label>
                             {{ form.description }}
-                            {% if form.description.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.description.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            <div class="help-text">Add any details or motivation for this habit</div>
+                            <div class="form-text">Why is this habit important to you?</div>
                         </div>
 
-                        <div class="form-group">
+                        <!-- Target Frequency -->
+                        <div class="mb-3">
                             <label for="{{ form.target_frequency.id_for_label }}" class="form-label">
-                                Target Frequency <span class="text-danger">*</span>
+                                <i class="fas fa-calendar-alt me-2"></i>Target Frequency
                             </label>
                             {{ form.target_frequency }}
-                            {% if form.target_frequency.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.target_frequency.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            <div class="help-text">How often do you want to practice this habit?</div>
+                            <div class="form-text">How often do you want to perform this habit?</div>
                         </div>
 
-                        <div class="form-group">
+                        <!-- Color Picker -->
+                        <div class="mb-4">
                             <label for="{{ form.color.id_for_label }}" class="form-label">
-                                Color Theme <span class="text-danger">*</span>
+                                <i class="fas fa-palette me-2"></i>Color Theme
                             </label>
                             <div class="d-flex align-items-center">
                                 {{ form.color }}
-                                <div class="color-preview" id="colorPreview" style="background-color: #3498db;"></div>
-                            </div>
-                            {% if form.color.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.color.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
+                                <div class="ms-3">
+                                    <div id="color-preview" class="color-preview-circle" style="background-color: #3498db;"></div>
                                 </div>
-                            {% endif %}
-                            <div class="help-text">Choose a color to represent this habit in charts and lists</div>
+                            </div>
+                            <div class="form-text">Choose a color that represents this habit</div>
                         </div>
 
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-lightbulb"></i> Habit Building Tips:</h6>
-                            <ul class="mb-0">
-                                <li>Start small - choose habits you can do in 2-5 minutes</li>
-                                <li>Be specific about when and where you'll do the habit</li>
-                                <li>Track consistently to build momentum</li>
-                                <li>Celebrate small wins!</li>
-                            </ul>
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{% url 'modules:habit_tracker' %}" class="btn btn-secondary me-md-2">
-                                Cancel
-                            </a>
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-plus"></i> Create Habit
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-fill">
+                                <i class="fas fa-plus me-2"></i>Create Habit
                             </button>
+                            <a href="{% url 'modules:habit_tracker' %}" class="btn btn-outline-secondary flex-fill">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card mt-4 bg-light border-0">
+                <div class="card-body">
+                    <h5 class="card-title">💡 Habit Building Tips</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Start small:</strong> Choose habits that take 2 minutes or less
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Be specific:</strong> "Read 10 pages" instead of "Read more"
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Stack habits:</strong> Link new habits to existing routines
+                        </li>
+                        <li>
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Track daily:</strong> Consistency beats intensity
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -144,21 +102,45 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const colorInput = document.getElementById('{{ form.color.id_for_label }}');
-    const colorPreview = document.getElementById('colorPreview');
+{% block extra_css %}
+<style>
+.color-preview-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
 
-    if (colorInput && colorPreview) {
-        // Update preview when color changes
-        colorInput.addEventListener('input', function(e) {
-            colorPreview.style.backgroundColor = e.target.value;
-        });
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(74, 144, 226, 0.25);
+}
 
-        // Set initial color
-        colorPreview.style.backgroundColor = colorInput.value;
+.card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #357abd 100%);
+    color: white;
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .d-flex.gap-2 {
+        flex-direction: column;
     }
-});
-</script>
+
+    .d-flex.gap-2 .btn {
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/habit-tracker.js' %}"></script>
 {% endblock %}
