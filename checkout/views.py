@@ -1,29 +1,21 @@
-from django.shortcuts import render, redirect, get_object_or_404, reverse
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.conf import settings
-from django.http import HttpResponse
-
-from shop.models import Module, UserModule
-from .forms import OrderForm
-from .models import Order, OrderLineItem
-
-import stripe
-import json
-
-stripe.api_key = settings.STRIPE_SECRET_KEY
-
-
 # checkout/views.py
 import stripe
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.http import HttpResponse
 from shop.models import Module, UserModule
+
 from .forms import OrderForm
 from .models import Order, OrderLineItem
+
+import stripe
+import json
+import time
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -166,3 +158,99 @@ def checkout_success(request, order_number):
     except Exception as e:
         messages.error(request, 'There was an error processing your order.')
         return redirect('shop:modules')
+
+
+@csrf_exempt
+@require_POST
+def stripe_webhook(request):
+    """Listen for webhooks from Stripe"""
+    payload = request.body
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+    endpoint_secret = settings.STRIPE_WH_SECRET
+    event = None
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        print(f"❌ Invalid payload: {e}")
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        print(f"❌ Invalid signature: {e}")
+        return HttpResponse(status=400)
+
+    # Handle the event
+    print(f"🎯 Webhook received: {event['type']}")
+
+    if event['type'] == 'payment_intent.succeeded':
+        payment_intent = event['data']['object']
+        print(f"✅ Payment succeeded: {payment_intent['id']} for ${payment_intent['amount']/100}")
+
+        # Webhook backup: Ensure order exists
+        _handle_payment_intent_succeeded(payment_intent)
+
+    elif event['type'] == 'payment_intent.created':
+        payment_intent = event['data']['object']
+        print(f"💳 Payment intent created: {payment_intent['id']}")
+
+    elif event['type'] == 'payment_intent.payment_failed':
+        payment_intent = event['data']['object']
+        print(f"❌ Payment failed: {payment_intent['id']}")
+
+    else:
+        print(f"🔔 Unhandled event type: {event['type']}")
+
+    return HttpResponse(status=200)
+
+def _handle_payment_intent_succeeded(payment_intent):
+    """
+    Handle successful payment - backup for webhook reliability
+    This ensures orders are created even if the main flow fails
+    """
+    pid = payment_intent['id']
+
+    try:
+        # Check if order already exists
+        order = Order.objects.get(stripe_pid=pid)
+        print(f"✅ Order already exists: {order.order_number}")
+        return order
+
+    except Order.DoesNotExist:
+        # Order doesn't exist - create it from webhook
+        print(f"⚠️  Creating order from webhook for payment: {pid}")
+
+        # Extract metadata
+        metadata = payment_intent.get('metadata', {})
+        username = metadata.get('username')
+
+        if not username:
+            print("❌ No username in payment metadata")
+            return None
+
+        try:
+            from django.contrib.auth.models import User
+            user = User.objects.get(username=username)
+
+            # Create order from webhook
+            order = Order.objects.create(
+                user=user,
+                full_name=f"{user.first_name} {user.last_name}" or username,
+                email=user.email,
+                phone_number="",  # Not available in webhook
+                total=payment_intent['amount'] / 100,
+                stripe_pid=pid,
+            )
+
+            print(f"✅ Order created from webhook: {order.order_number}")
+            return order
+
+        except User.DoesNotExist:
+            print(f"❌ User not found: {username}")
+            return None
+
+    except Exception as e:
+        print(f"❌ Error in webhook handler: {e}")
+        return None
