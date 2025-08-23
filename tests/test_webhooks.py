@@ -59,10 +59,13 @@ class WebhookTestCase(TestCase):
             }
         }
 
-    def create_mock_payment_intent(self, status='succeeded', amount=999):
-        """Create mock payment intent data"""
+    def create_mock_payment_intent(self, status='succeeded', amount=999, pid=None):
+        """Create mock payment intent data with unique ID"""
+        if pid is None:
+            pid = f'pi_test_payment_intent_{id(self)}'  # Make unique per test instance
+
         return {
-            'id': 'pi_test_payment_intent',
+            'id': pid,
             'object': 'payment_intent',
             'amount': amount,
             'currency': 'usd',
@@ -88,18 +91,19 @@ class WebhookSuccessTests(WebhookTestCase):
     @patch('stripe.Webhook.construct_event')
     def test_payment_intent_succeeded_existing_order(self, mock_construct_event):
         """Test webhook when order already exists (normal flow)"""
-        payment_intent = self.create_mock_payment_intent()
+        pid = 'pi_test_existing_order'
+        payment_intent = self.create_mock_payment_intent(pid=pid)
         event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
         mock_construct_event.return_value = event
 
-        # Create existing order
+        # Create existing order with same PID
         order = Order.objects.create(
             user=self.user,
             full_name='Test User',
             email='test@example.com',
             phone_number='1234567890',
             total=9.99,
-            stripe_pid='pi_test_payment_intent'
+            stripe_pid=pid
         )
 
         response = self.client.post(
@@ -115,7 +119,8 @@ class WebhookSuccessTests(WebhookTestCase):
     @patch('stripe.Webhook.construct_event')
     def test_payment_intent_succeeded_backup_creation(self, mock_construct_event):
         """Test order creation when main flow fails"""
-        payment_intent = self.create_mock_payment_intent()
+        pid = 'pi_test_backup_creation'
+        payment_intent = self.create_mock_payment_intent(pid=pid)
         event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
         mock_construct_event.return_value = event
 
@@ -133,7 +138,7 @@ class WebhookSuccessTests(WebhookTestCase):
         self.assertEqual(Order.objects.count(), 1)
 
         order = Order.objects.first()
-        self.assertEqual(order.stripe_pid, 'pi_test_payment_intent')
+        self.assertEqual(order.stripe_pid, pid)
         self.assertEqual(order.user, self.user)
 
 class WebhookErrorTests(WebhookTestCase):
@@ -172,10 +177,14 @@ class WebhookErrorTests(WebhookTestCase):
     @patch('stripe.Webhook.construct_event')
     def test_missing_user_metadata(self, mock_construct_event):
         """Test webhook with missing user metadata"""
-        payment_intent = self.create_mock_payment_intent()
+        pid = 'pi_test_missing_metadata'
+        payment_intent = self.create_mock_payment_intent(pid=pid)
         payment_intent['metadata'] = {}  # Remove username
         event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
         mock_construct_event.return_value = event
+
+        # Make sure no orders exist initially
+        self.assertEqual(Order.objects.count(), 0)
 
         response = self.client.post(
             reverse('checkout:stripe_webhook'),
@@ -194,7 +203,8 @@ class WebhookReliabilityTests(WebhookTestCase):
     @patch('stripe.Webhook.construct_event')
     def test_duplicate_webhook_handling(self, mock_construct_event):
         """Test handling of duplicate webhook events"""
-        payment_intent = self.create_mock_payment_intent()
+        pid = 'pi_test_duplicate_handling'
+        payment_intent = self.create_mock_payment_intent(pid=pid)
         event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
         mock_construct_event.return_value = event
 
@@ -205,7 +215,7 @@ class WebhookReliabilityTests(WebhookTestCase):
             email='test@example.com',
             phone_number='1234567890',
             total=9.99,
-            stripe_pid='pi_test_payment_intent'
+            stripe_pid=pid
         )
 
         # Send webhook multiple times
