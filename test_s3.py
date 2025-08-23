@@ -1,74 +1,43 @@
-# Create test_s3_direct.py and run it
+# test_s3.py - Test S3 storage directly
 
-import boto3
 import os
-from dotenv import load_dotenv
+import django
+from django.conf import settings
 
-load_dotenv()
+# Setup Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'aw_life_planner.settings')
+django.setup()
 
-def test_s3():
-    """Test S3 connection directly with boto3"""
+from django.core.files.storage import get_storage_class
+from django.core.files.base import ContentFile
 
-    # Get credentials from .env
-    access_key = os.environ.get('AWS_ACCESS_KEY_ID')
-    secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    bucket_name = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-    region = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
+print("Testing S3 Storage...")
 
-    print(f"Testing S3 connection...")
-    print(f"Bucket: {bucket_name}")
-    print(f"Region: {region}")
-    print(f"Access Key: {access_key}")
+# Get the storage class
+storage_class = get_storage_class(settings.STATICFILES_STORAGE)
+storage = storage_class()
 
-    try:
-        # Create S3 client
-        s3 = boto3.client(
-            's3',
-            aws_access_key_id=access_key,
-            aws_secret_access_key=secret_key,
-            region_name=region
-        )
+print(f"Storage class: {storage_class}")
+print(f"Storage bucket: {getattr(storage, 'bucket_name', 'Not found')}")
+print(f"Storage location: {getattr(storage, 'location', 'Not found')}")
 
-        # Test 1: Check if bucket exists
-        print("\n1. Testing bucket access...")
-        s3.head_bucket(Bucket=bucket_name)
-        print("✅ Bucket exists and is accessible!")
+# Test saving a file
+try:
+    test_content = ContentFile(b"Hello from Django S3 test!")
+    file_name = storage.save("test.txt", test_content)
+    print(f"✅ Successfully saved file: {file_name}")
 
-        # Test 2: List bucket contents
-        print("\n2. Listing bucket contents...")
-        response = s3.list_objects_v2(Bucket=bucket_name, MaxKeys=10)
-
-        if 'Contents' in response:
-            print(f"✅ Found {len(response['Contents'])} objects:")
-            for obj in response['Contents'][:5]:  # Show first 5
-                print(f"   - {obj['Key']} ({obj['Size']} bytes)")
-        else:
-            print("✅ Bucket is empty (ready for uploads!)")
-
-        # Test 3: Try to upload a test file
-        print("\n3. Testing file upload...")
-        test_content = "Hello from Django!"
-        s3.put_object(
-            Bucket=bucket_name,
-            Key='test/django-test.txt',
-            Body=test_content,
-            ACL='public-read'
-        )
-        print("✅ Test file uploaded successfully!")
-
-        # Test 4: Get the file URL
-        url = f"https://{bucket_name}.s3.amazonaws.com/test/django-test.txt"
-        print(f"✅ File URL: {url}")
-
-        return True
-
-    except Exception as e:
-        print(f"❌ S3 Test failed: {e}")
-        return False
-
-if __name__ == "__main__":
-    success = test_s3()
-    if success:
-        print("\n🎉 S3 is working! Let's try collectstatic now.")
+    # Check if file exists
+    if storage.exists(file_name):
+        print(f"✅ File exists in storage")
     else:
-        print("\n💥 S3 connection failed. Check your credentials.")
+        print(f"❌ File does not exist in storage")
+
+    # Get the URL
+    url = storage.url(file_name)
+    print(f"📄 File URL: {url}")
+
+except Exception as e:
+    print(f"❌ Error testing S3 storage: {e}")
+    import traceback
+    traceback.print_exc()
