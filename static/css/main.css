@@ -340,6 +340,52 @@ body {
     background-clip: text;
 }
 
+/* Enhanced Coming Soon Styling */
+.coming-soon-badge {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    border-radius: 25px;
+    box-shadow: 0 3px 10px rgba(255, 193, 7, 0.4);
+    animation: gentle-pulse 2s infinite;
+}
+
+.coming-soon-glow {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    border-radius: 20px;
+    animation: glow-pulse 2s infinite;
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+}
+
+/* Animations */
+@keyframes gentle-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes glow-pulse {
+    0% {
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(255, 193, 7, 0.8);
+        transform: scale(1.02);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+        transform: scale(1);
+    }
+}
+
+/* Banner style */
+.coming-soon-banner {
+    background: linear-gradient(45deg, #ffc107, #ffed4a) !important;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
 /* Table Responsive */
 .table-responsive {
     border-radius: 10px;
