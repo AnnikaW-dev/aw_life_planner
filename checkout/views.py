@@ -8,8 +8,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.http import HttpResponse
-from shop.models import Module, UserModule
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
+from shop.models import Module, UserModule
 from .forms import OrderForm
 from .models import Order, OrderLineItem
 from .webhooks import webhook
@@ -57,6 +59,34 @@ def checkout(request):
                 order.stripe_pid = f"temp_{timezone.now().timestamp()}"
 
             order.save()
+
+            # Update order total
+            order.total = total
+            order.save()
+
+            # Send confirmation email
+            try:
+                subject = render_to_string(
+                    'checkout/confirmation_emails/confirmation_email_subject.txt',
+                    {'order': order})
+                body = render_to_string(
+                    'checkout/confirmation_emails/confirmation_email_body.txt',
+                    {'order': order, 'contact_email': settings.DEFAULT_FROM_EMAIL})
+
+                send_mail(
+                    subject.strip(),
+                    body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [order.email],
+                    fail_silently=True,  # Don't break checkout if email fails
+                )
+            except Exception as e:
+                # Log error but don't break the checkout process
+                print(f"Failed to send confirmation email: {e}")
+
+            # Clear the cart
+            if 'cart' in request.session:
+                del request.session['cart']
 
             # Add line items and create UserModule entries
             total = 0
