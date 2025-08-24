@@ -1,20 +1,13 @@
-# checkout/admin.py - CORRECTED VERSION
+# checkout/admin.py - UPDATED TO USE ACTUAL FIELD
 from django.contrib import admin
 from .models import Order, OrderLineItem
 
 
 class OrderLineItemAdminInline(admin.TabularInline):
     model = OrderLineItem
-    readonly_fields = ('get_module_price',)  # Changed from 'lineitem_total' to 'get_module_price'
-    extra = 0  # Don't show extra empty forms
-    can_delete = False  # Prevent deletion of line items
-
-    def get_module_price(self, obj):
-        """Display the module price"""
-        if obj and obj.module:
-            return f"${obj.module.price}"
-        return "N/A"
-    get_module_price.short_description = 'Price'
+    readonly_fields = ('lineitem_total',)  # This field exists in your model
+    extra = 0
+    can_delete = False
 
 
 @admin.register(Order)

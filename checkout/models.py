@@ -1,3 +1,4 @@
+# checkout/models.py - FIXED VERSION
 from django.db import models
 from django.contrib.auth.models import User
 from shop.models import Module
@@ -5,7 +6,7 @@ from shop.models import Module
 import uuid
 
 
-class Order (models.Model):
+class Order(models.Model):
     order_number = models.CharField(max_length=32, null=True, editable=False)
     user = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -27,7 +28,11 @@ class Order (models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.order_number
+        """ String representation of the order """
+        return f"Order {self.order_number}" if self.order_number else f"Order #{self.id}"
+
+    class Meta:
+        ordering = ['-date']
 
 
 class OrderLineItem(models.Model):
@@ -45,4 +50,5 @@ class OrderLineItem(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'Module{self.module.name} on order {self.order:nuber}'
+        # FIXED: Removed the invalid :number format specifier
+        return f'Module {self.module.name} on order {self.order.order_number}'
