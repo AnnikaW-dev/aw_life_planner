@@ -1,7 +1,7 @@
 # manual_webhook_test.py - Test script for Stripe webhooks
 import os
 import requests
-import json
+
 
 def test_webhook_endpoint(heroku_app_url):
     """Test if webhook endpoint is accessible"""
@@ -17,6 +17,7 @@ def test_webhook_endpoint(heroku_app_url):
         print(f"❌ Webhook endpoint not accessible: {e}")
         return False
 
+
 def verify_stripe_keys():
     """Verify Stripe keys are properly configured"""
     public_key = os.environ.get('STRIPE_PUBLIC_KEY')
@@ -29,6 +30,7 @@ def verify_stripe_keys():
     print(f"✅ Webhook Secret: {'✓' if webhook_secret and webhook_secret.startswith('whsec_') else '❌'}")
 
     return all([public_key, secret_key, webhook_secret])
+
 
 def test_payment_flow():
     """Manual test checklist for payment flow"""
@@ -43,6 +45,7 @@ def test_payment_flow():
     print("8. [ ] Verify order appears in admin panel")
     print("9. [ ] Check Stripe dashboard for payment event")
     print("10. [ ] Verify webhook received in Stripe dashboard")
+
 
 if __name__ == "__main__":
     # Replace with your Heroku app URL

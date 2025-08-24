@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
-from decouple import config
 from django.contrib.messages import constants as messages
 
 # Load environment variables
@@ -92,7 +91,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',  # required by allauth
+                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
@@ -110,7 +109,8 @@ WSGI_APPLICATION = 'aw_life_planner.wsgi.application'
 
 # Database
 if 'DATABASE_URL' in os.environ:
-    DATABASES = {'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))}
+    DATABASES = {'default': dj_database_url.parse(os.environ.get
+                                                  ('DATABASE_URL'))}
 else:
     DATABASES = {
         'default': {
@@ -121,10 +121,17 @@ else:
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': (
+        'django.contrib.auth.password_validation.'
+        'UserAttributeSimilarityValidator'
+        )},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {'NAME': (
+        'django.contrib.auth.password_validation.CommonPasswordValidator'
+        )},
+    {'NAME': (
+        'django.contrib.auth.password_validation.NumericPasswordValidator'
+        )},
 ]
 
 # Internationalization
@@ -214,14 +221,18 @@ if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     # Production - use real email backend
-    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+    EMAIL_BACKEND = os.environ.get(
+        'EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend'
+        )
     EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
     EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
     EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@awlifeplanner.com')
+DEFAULT_FROM_EMAIL = os.environ.get(
+    'DEFAULT_FROM_EMAIL', 'noreply@awlifeplanner.com'
+    )
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Account email verification settings
@@ -261,7 +272,13 @@ MESSAGE_TAGS = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Temporary debug - add this after imports
-print(f"🔍 AWS_ACCESS_KEY_ID exists: {bool(os.environ.get('AWS_ACCESS_KEY_ID'))}")
-print(f"🔍 AWS_SECRET_ACCESS_KEY exists: {bool(os.environ.get('AWS_SECRET_ACCESS_KEY'))}")
-print(f"🔍 AWS_STORAGE_BUCKET_NAME: {os.environ.get('AWS_STORAGE_BUCKET_NAME')}")
+print(f"🔍 AWS_ACCESS_KEY_ID exists: {bool(os.environ.get(
+    'AWS_ACCESS_KEY_ID'
+    ))}")
+print(f"🔍 AWS_SECRET_ACCESS_KEY exists: {bool(os.environ.get(
+    'AWS_SECRET_ACCESS_KEY'
+    ))}")
+print(f"🔍 AWS_STORAGE_BUCKET_NAME: {os.environ.get(
+    'AWS_STORAGE_BUCKET_NAME'
+    )}")
 print(f"🔍 AWS_S3_REGION_NAME: {os.environ.get('AWS_S3_REGION_NAME')}")

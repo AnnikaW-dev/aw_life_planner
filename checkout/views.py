@@ -1,13 +1,9 @@
 # checkout/views.py
-import stripe
-from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
 from django.utils import timezone
-from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
@@ -17,15 +13,14 @@ from .models import Order, OrderLineItem
 from .webhooks import webhook
 
 import stripe
-import json
-import time
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 @login_required
 def checkout(request):
     stripe_public_key = settings.STRIPE_PUBLIC_KEY
-    stripe_secret_key = settings.STRIPE_SECRET_KEY
+    # stripe_secret_key = settings.STRIPE_SECRET_KEY
 
     if request.method == 'POST':
         cart = request.session.get('cart', {})
@@ -71,7 +66,10 @@ def checkout(request):
                     {'order': order})
                 body = render_to_string(
                     'checkout/confirmation_emails/confirmation_email_body.txt',
-                    {'order': order, 'contact_email': settings.DEFAULT_FROM_EMAIL})
+                    {
+                        'order': order,
+                        'contact_email': settings.DEFAULT_FROM_EMAIL
+                     })
 
                 send_mail(
                     subject.strip(),
@@ -108,7 +106,10 @@ def checkout(request):
                     )
 
                 except Module.DoesNotExist:
-                    messages.error(request, "One of the modules in your cart wasn't found.")
+                    messages.error(
+                        request,
+                        "One of the modules in your cart wasn't found."
+                        )
                     order.delete()
                     return redirect('shop:modules')
 
@@ -120,11 +121,19 @@ def checkout(request):
             if 'cart' in request.session:
                 del request.session['cart']
 
-            messages.success(request, f'Order successfully processed! Order number: {order.order_number}')
-            return redirect('checkout:checkout_success', order_number=order.order_number)
+            messages.success
+            (request,
+             f'Order successfully processed! Order number:{order.order_number}'
+             )
+            return redirect(
+                'checkout:checkout_success', order_number=order.order_number
+                )
 
         else:
-            messages.error(request, 'There was an error with your form. Please check your information.')
+            messages.error(
+                request,
+                'There was an error with your form. Please check your information.'
+                )
 
     else:
         # GET request - show checkout form
@@ -177,11 +186,14 @@ def checkout(request):
 
         return render(request, 'checkout/checkout.html', context)
 
+
 @login_required
 def checkout_success(request, order_number):
     """Handle successful checkouts"""
     try:
-        order = get_object_or_404(Order, order_number=order_number, user=request.user)
+        order = get_object_or_404(
+            Order, order_number=order_number, user=request.user
+            )
 
         context = {'order': order}
         return render(request, 'checkout/checkout_success.html', context)
@@ -192,7 +204,5 @@ def checkout_success(request, order_number):
 
 
 # The webhook view is now imported from webhooks.py
-
 # Use: from .webhooks import webhook
-
 stripe_webhook = webhook

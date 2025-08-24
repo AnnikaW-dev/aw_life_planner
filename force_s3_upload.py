@@ -4,19 +4,21 @@
 import os
 import django
 
+from django.core.files.base import ContentFile
+from django.contrib.staticfiles import finders
+from storages.backends.s3boto3 import S3Boto3Storage
+
 # Setup Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'aw_life_planner.settings')
 django.setup()
 
-from django.core.files.base import ContentFile
-from django.contrib.staticfiles import finders
-from storages.backends.s3boto3 import S3Boto3Storage
 
 # Create S3 storage directly
 class TempStaticStorage(S3Boto3Storage):
     location = 'static'
     default_acl = 'public-read'
     file_overwrite = True
+
 
 storage = TempStaticStorage()
 

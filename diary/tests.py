@@ -36,7 +36,8 @@ class DiaryViewTest(TestCase):
         """Test that diary home requires authentication"""
         response = self.client.get(reverse('diary:diary_home'))
         self.assertEqual(response.status_code, 302)
-        # Check that it redirects to the login page (with or without query params)
+        # Check that it redirects to the login page (
+        # with or without query params)
         self.assertTrue(response.url.startswith('/accounts/login'))
 
     def test_diary_home_authenticated(self):

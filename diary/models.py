@@ -15,12 +15,14 @@ class DiaryEntry(models.Model):
     date = models.DateField(default=timezone.now)
     title = models.CharField(max_length=200)
     content = models.CharField()
-    mood = models.CharField(max_length=50, choices=MOOD_CHOICES,null=True, blank=True)
+    mood = models.CharField(
+        max_length=50, choices=MOOD_CHOICES, null=True, blank=True
+        )
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering =[
+        ordering = [
             '-date',
             '-created_at',
         ]

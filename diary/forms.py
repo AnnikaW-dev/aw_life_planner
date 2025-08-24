@@ -12,7 +12,7 @@ class DiaryEntryForm(forms.ModelForm):
             'mood',
         ]
         widgets = {
-            'date':forms.DateInput(attrs={
+            'date': forms.DateInput(attrs={
                 'type': 'date', 'class': 'form-control'
                 }),
             'title': forms.TextInput(attrs={

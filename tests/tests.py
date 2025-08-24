@@ -3,10 +3,10 @@ import stripe
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.conf import settings
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from checkout.models import Order, OrderLineItem
 from shop.models import Module, UserModule, Category
+
 
 class WebhookTestCase(TestCase):
     def setUp(self):
@@ -78,6 +78,7 @@ class WebhookTestCase(TestCase):
             }
         }
 
+
 class WebhookSuccessTests(WebhookTestCase):
     """Test successful webhook scenarios"""
 
@@ -86,7 +87,9 @@ class WebhookSuccessTests(WebhookTestCase):
         """Test successful payment_intent.succeeded webhook"""
         # Create mock event
         payment_intent = self.create_mock_payment_intent()
-        event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+        event = self.create_mock_webhook_event(
+            'payment_intent.succeeded', payment_intent
+            )
         mock_construct_event.return_value = event
 
         # Create existing order (normal flow)
@@ -116,8 +119,12 @@ class WebhookSuccessTests(WebhookTestCase):
     @patch('stripe.Webhook.construct_event')
     def test_payment_intent_created_webhook(self, mock_construct_event):
         """Test payment_intent.created webhook"""
-        payment_intent = self.create_mock_payment_intent(status='requires_payment_method')
-        event = self.create_mock_webhook_event('payment_intent.created', payment_intent)
+        payment_intent = self.create_mock_payment_intent(
+            status='requires_payment_method'
+            )
+        event = self.create_mock_webhook_event(
+            'payment_intent.created', payment_intent
+            )
         mock_construct_event.return_value = event
 
         response = self.client.post(
@@ -133,7 +140,9 @@ class WebhookSuccessTests(WebhookTestCase):
     def test_backup_order_creation_from_webhook(self, mock_construct_event):
         """Test order creation when main flow fails"""
         payment_intent = self.create_mock_payment_intent()
-        event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+        event = self.create_mock_webhook_event(
+            'payment_intent.succeeded', payment_intent
+            )
         mock_construct_event.return_value = event
 
         # Don't create order first - simulate main flow failure
@@ -153,6 +162,7 @@ class WebhookSuccessTests(WebhookTestCase):
         order = Order.objects.first()
         self.assertEqual(order.stripe_pid, 'pi_test_payment_intent')
         self.assertEqual(order.user, self.user)
+
 
 class WebhookErrorTests(WebhookTestCase):
     """Test webhook error scenarios"""
@@ -192,7 +202,9 @@ class WebhookErrorTests(WebhookTestCase):
         with patch('stripe.Webhook.construct_event') as mock_construct:
             payment_intent = self.create_mock_payment_intent()
             payment_intent['metadata'] = {}  # Remove username
-            event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+            event = self.create_mock_webhook_event(
+                'payment_intent.succeeded', payment_intent
+                )
             mock_construct.return_value = event
 
             response = self.client.post(
@@ -212,7 +224,9 @@ class WebhookErrorTests(WebhookTestCase):
         with patch('stripe.Webhook.construct_event') as mock_construct:
             payment_intent = self.create_mock_payment_intent()
             payment_intent['metadata']['username'] = 'nonexistent_user'
-            event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+            event = self.create_mock_webhook_event(
+                'payment_intent.succeeded', payment_intent
+                )
             mock_construct.return_value = event
 
             response = self.client.post(
@@ -225,6 +239,7 @@ class WebhookErrorTests(WebhookTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(Order.objects.count(), 0)
 
+
 class WebhookIntegrationTests(WebhookTestCase):
     """Integration tests for webhook flow"""
 
@@ -234,7 +249,7 @@ class WebhookIntegrationTests(WebhookTestCase):
         # 1. Create payment intent (simulate checkout page load)
         payment_intent = self.create_mock_payment_intent()
 
-        # 2. Create order (simulate successful payment)
+        # Create order (simulate successful payment)
         order = Order.objects.create(
             user=self.user,
             full_name='Test User',
@@ -244,21 +259,10 @@ class WebhookIntegrationTests(WebhookTestCase):
             stripe_pid='pi_test_payment_intent'
         )
 
-        # 3. Create order line item
-        order_line_item = OrderLineItem.objects.create(
-            order=order,
-            module=self.module,
-            lineitem_total=9.99
-        )
-
-        # 4. Create UserModule (simulate module access grant)
-        user_module = UserModule.objects.create(
-            user=self.user,
-            module=self.module
-        )
-
-        # 5. Send webhook (simulate Stripe confirmation)
-        event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+        # Send webhook (simulate Stripe confirmation)
+        event = self.create_mock_webhook_event(
+            'payment_intent.succeeded', payment_intent
+            )
         mock_construct_event.return_value = event
 
         response = self.client.post(
@@ -281,6 +285,7 @@ class WebhookIntegrationTests(WebhookTestCase):
             UserModule.objects.filter(user=self.user, module=self.module).exists()
         )
 
+
 class WebhookPerformanceTests(WebhookTestCase):
     """Test webhook performance and reliability"""
 
@@ -288,7 +293,9 @@ class WebhookPerformanceTests(WebhookTestCase):
     def test_duplicate_webhook_handling(self, mock_construct_event):
         """Test handling of duplicate webhook events"""
         payment_intent = self.create_mock_payment_intent()
-        event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+        event = self.create_mock_webhook_event(
+            'payment_intent.succeeded', payment_intent
+            )
         mock_construct_event.return_value = event
 
         # Create order first
@@ -320,7 +327,9 @@ class WebhookPerformanceTests(WebhookTestCase):
         payment_intent = self.create_mock_payment_intent()
         # Add large metadata
         payment_intent['metadata']['large_data'] = 'x' * 1000
-        event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+        event = self.create_mock_webhook_event(
+            'payment_intent.succeeded', payment_intent
+            )
         mock_construct_event.return_value = event
 
         response = self.client.post(

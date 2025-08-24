@@ -21,7 +21,9 @@ class Module(models.Model):
         ('habit_tracker', 'Habit Tracker'),
     ]
 
-    category = models.ForeignKey('Category', null=True, blank=True, on_delete=models.SET_NULL)
+    category = models.ForeignKey(
+        'Category', null=True, blank=True, on_delete=models.SET_NULL
+        )
     name = models.CharField(max_length=254)
     module_type = models.CharField(max_length=50, choices=MODULE_TYPES)
     description = models.TextField()

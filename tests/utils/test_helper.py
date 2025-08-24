@@ -6,6 +6,7 @@ from checkout.models import Order, OrderLineItem
 from modules.models import MealPlan, CleaningTask, HabitTracker
 from django.test import Client
 
+
 class TestDataFactory:
     """Factory for creating test data"""
 
@@ -27,7 +28,9 @@ class TestDataFactory:
         )
 
     @staticmethod
-    def create_test_module(category=None, module_type='meal_planner', price=9.99):
+    def create_test_module(category=None,
+                           module_type='meal_planner',
+                           price=9.99):
         """Create a test module"""
         if not category:
             category = TestDataFactory.create_test_category()
@@ -75,11 +78,14 @@ class TestDataFactory:
             'user_module': user_module
         }
 
+
 class WebhookTestHelpers:
     """Helper functions for webhook testing"""
 
     @staticmethod
-    def create_stripe_event(event_type, payment_intent_id, username, amount=999):
+    def create_stripe_event(event_type,
+                            payment_intent_id,
+                            username, amount=999):
         """Create a mock Stripe webhook event"""
         return {
             'id': f'evt_test_{payment_intent_id}',
@@ -111,9 +117,9 @@ class WebhookTestHelpers:
             HTTP_STRIPE_SIGNATURE='test_signature'
         )
 
+
 class ModuleTestHelpers:
     """Helper functions for module testing"""
-
     @staticmethod
     def create_meal_plan(user, date=None):
         """Create a test meal plan"""
@@ -151,6 +157,7 @@ class ModuleTestHelpers:
             target_frequency='daily',
             color='#3498db'
         )
+
 
 class AuthTestHelpers:
     """Helper functions for authentication testing"""

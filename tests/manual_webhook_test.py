@@ -1,16 +1,21 @@
-# Create: manual_webhook_test.py (in project root)
+# manual_webhook_test.py (in project root)
 
-import json
 import requests
 import time
 from datetime import datetime
+
 
 class WebhookTester:
     def __init__(self, base_url="http://127.0.0.1:8000"):
         self.base_url = base_url
         self.webhook_url = f"{base_url}/checkout/webhook/"
 
-    def create_test_event(self, event_type, payment_intent_id, username="testuser", amount=999):
+    def create_test_event(
+            self, event_type,
+            payment_intent_id,
+            username="testuser",
+            amount=999
+            ):
         """Create a test webhook event"""
         return {
             "id": f"evt_{int(time.time())}",
@@ -52,7 +57,8 @@ class WebhookTester:
         """Send webhook to Django app"""
         headers = {
             'Content-Type': 'application/json',
-            'Stripe-Signature': 'test_signature'  # In real testing, this would be properly signed
+            'Stripe-Signature': 'test_signature'
+            # In real testing, this would be properly signed
         }
 
         try:
@@ -74,18 +80,24 @@ class WebhookTester:
         payment_intent_id = f"pi_test_{int(time.time())}"
 
         # 1. Test payment_intent.created
-        created_event = self.create_test_event("payment_intent.created", payment_intent_id)
+        created_event = self.create_test_event(
+            "payment_intent.created", payment_intent_id
+            )
         response = self.send_webhook(created_event)
 
         if response and response.status_code == 200:
             print("✅ payment_intent.created - SUCCESS")
         else:
-            print(f"❌ payment_intent.created - FAILED ({response.status_code if response else 'No response'})")
+            print(
+                f"❌ payment_intent.created - FAILED ({response.status_code if response else 'No response'})"
+                )
 
         time.sleep(1)  # Simulate time between events
 
         # 2. Test payment_intent.succeeded
-        succeeded_event = self.create_test_event("payment_intent.succeeded", payment_intent_id)
+        succeeded_event = self.create_test_event(
+            "payment_intent.succeeded", payment_intent_id
+            )
         response = self.send_webhook(succeeded_event)
 
         if response and response.status_code == 200:
@@ -102,7 +114,10 @@ class WebhookTester:
         response = requests.post(
             self.webhook_url,
             data="invalid json",
-            headers={'Content-Type': 'application/json', 'Stripe-Signature': 'test'},
+            headers={
+                'Content-Type': 'application/json',
+                'Stripe-Signature': 'test'
+                  },
             timeout=10
         )
 
@@ -113,31 +128,42 @@ class WebhookTester:
 
         # Test 2: Missing user in metadata
         print("Testing missing user metadata...")
-        event = self.create_test_event("payment_intent.succeeded", f"pi_test_{int(time.time())}")
+        event = self.create_test_event
+        ("payment_intent.succeeded", f"pi_test_{int(time.time())}"
+         )
         event['data']['object']['metadata'] = {}  # Remove username
 
         response = self.send_webhook(event)
         if response and response.status_code == 200:
             print("✅ Missing user metadata - Handled gracefully")
         else:
-            print(f"❌ Missing user metadata - Failed ({response.status_code if response else 'No response'})")
+            print(
+                f"❌ Missing user metadata - Failed ({response.status_code if response else 'No response'})"
+                )
 
         # Test 3: Nonexistent user
         print("Testing nonexistent user...")
-        event = self.create_test_event("payment_intent.succeeded", f"pi_test_{int(time.time())}", username="nonexistent_user")
+        event = self.create_test_event(
+            "payment_intent.succeeded",
+            f"pi_test_{int(time.time())}", username="nonexistent_user"
+            )
 
         response = self.send_webhook(event)
         if response and response.status_code == 200:
             print("✅ Nonexistent user - Handled gracefully")
         else:
-            print(f"❌ Nonexistent user - Failed ({response.status_code if response else 'No response'})")
+            print(
+                f"❌ Nonexistent user - Failed ({response.status_code if response else 'No response'})"
+                )
 
     def test_duplicate_events(self):
         """Test duplicate event handling"""
         print("\n🧪 Testing Duplicate Event Handling...")
 
         payment_intent_id = f"pi_test_{int(time.time())}"
-        event = self.create_test_event("payment_intent.succeeded", payment_intent_id)
+        event = self.create_test_event(
+            "payment_intent.succeeded", payment_intent_id
+            )
 
         success_count = 0
 
@@ -165,7 +191,9 @@ class WebhookTester:
 
         for i in range(total_events):
             payment_intent_id = f"pi_test_volume_{int(time.time())}_{i}"
-            event = self.create_test_event("payment_intent.succeeded", payment_intent_id)
+            event = self.create_test_event(
+                "payment_intent.succeeded", payment_intent_id
+                )
 
             response = self.send_webhook(event)
             if response and response.status_code == 200:
@@ -200,6 +228,7 @@ class WebhookTester:
         print("🏁 Webhook Testing Complete!")
         print("✅ Check the output above for detailed results")
         print("=" * 60)
+
 
 if __name__ == "__main__":
     tester = WebhookTester()

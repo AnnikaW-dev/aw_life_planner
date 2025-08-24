@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import MealPlan, CleaningTask, Sticker, DiarySticker, HabitTracker, HabitLog
+from .models import (
+    MealPlan, CleaningTask, Sticker, DiarySticker, HabitLog, HabitTracker
+    )
 
 
 @admin.register(MealPlan)

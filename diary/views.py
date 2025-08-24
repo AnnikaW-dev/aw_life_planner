@@ -17,7 +17,7 @@ def add_entry(request):
     if request.method == 'POST':
         form = DiaryEntryForm(request.POST)
         if form.is_valid():
-            entry=form.save(commit=False)
+            entry = form.save(commit=False)
             entry.user = request.user
             entry.save()
             messages.success(request, 'Entry added successfully!')
@@ -32,6 +32,7 @@ def view_entry(request, entry_id):
     entry = get_object_or_404(DiaryEntry, pk=entry_id)
     return render(request, 'diary/view_entry.html', {'entry': entry})
 
+
 @login_required
 def edit_entry(request, entry_id):
     entry = get_object_or_404(DiaryEntry, pk=entry_id, user=request.user)
@@ -43,9 +44,11 @@ def edit_entry(request, entry_id):
             messages.success(request, 'Entry update successfully!')
             return redirect('diary:view_entry', entry_id=entry.id)
     else:
-        form= DiaryEntryForm(instance=entry)
+        form = DiaryEntryForm(instance=entry)
 
-    return render(request, 'diary/edit_entry.html', {'form':form, 'entry':entry})
+    return render(request, 'diary/edit_entry.html', {
+        'form': form, 'entry': entry
+        })
 
 
 @login_required
@@ -57,4 +60,4 @@ def delete_entry(request, entry_id):
         messages.success(request, 'Entry deleted successfully!')
         return redirect('diary:diary_home')
 
-    return render(request, 'diary/delete_entry.html', {'entry':entry})
+    return render(request, 'diary/delete_entry.html', {'entry': entry})

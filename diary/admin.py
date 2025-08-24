@@ -16,7 +16,7 @@ class DiaryEntryAdmin(admin.ModelAdmin):
         'created_at',
         'date',
     ]
-    seach_fields =[
+    seach_fields = [
         'title',
         'content',
         'user__username',

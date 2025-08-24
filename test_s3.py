@@ -3,13 +3,13 @@
 import os
 import django
 from django.conf import settings
+from django.core.files.storage import get_storage_class
+from django.core.files.base import ContentFile
 
 # Setup Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'aw_life_planner.settings')
 django.setup()
 
-from django.core.files.storage import get_storage_class
-from django.core.files.base import ContentFile
 
 print("Testing S3 Storage...")
 

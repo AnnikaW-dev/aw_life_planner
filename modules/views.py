@@ -9,6 +9,7 @@ from shop.models import UserModule
 from .models import MealPlan, CleaningTask, HabitTracker, HabitLog
 from .forms import MealPlanForm, CleaningTaskForm, HabitTrackerForm
 
+
 def check_module_access(user, module_type):
     """Check if user has purchased the required module"""
     return UserModule.objects.filter(
@@ -16,11 +17,15 @@ def check_module_access(user, module_type):
         module__module_type=module_type
     ).exists()
 
+
 @login_required
 def meal_planner(request):
     """Meal planner view"""
     if not check_module_access(request.user, 'meal_planner'):
-        messages.error(request, 'You need to purchase the Meal Planner module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Meal Planner module to access this feature.'
+            )
         return redirect('shop:modules')
 
     meal_plans = MealPlan.objects.filter(user=request.user)
@@ -37,7 +42,10 @@ def meal_planner(request):
 def add_meal_plan(request):
     """Add meal plan view"""
     if not check_module_access(request.user, 'meal_planner'):
-        messages.error(request, 'You need to purchase the Meal Planner module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Meal Planner module to access this feature.'
+            )
         return redirect('shop:modules')
 
     if request.method == 'POST':
@@ -58,10 +66,15 @@ def add_meal_plan(request):
 def cleaning_schedule(request):
     """Cleaning schedule view"""
     if not check_module_access(request.user, 'cleaning_schedule'):
-        messages.error(request, 'You need to purchase the Cleaning Schedule module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Cleaning Schedule module to access this feature.'
+            )
         return redirect('shop:modules')
 
-    tasks = CleaningTask.objects.filter(user=request.user, is_active=True).order_by('next_due')
+    tasks = CleaningTask.objects.filter(
+        user=request.user, is_active=True
+        ).order_by('next_due')
     overdue_tasks = tasks.filter(next_due__lt=timezone.now().date())
     today = timezone.now().date()
 
@@ -77,7 +90,10 @@ def cleaning_schedule(request):
 def add_cleaning_task(request):
     """Add cleaning task view"""
     if not check_module_access(request.user, 'cleaning_schedule'):
-        messages.error(request, 'You need to purchase the Cleaning Schedule module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Cleaning Schedule module to access this feature.'
+            )
         return redirect('shop:modules')
 
     if request.method == 'POST':
@@ -86,7 +102,10 @@ def add_cleaning_task(request):
             cleaning_task = form.save(commit=False)
             cleaning_task.user = request.user
             cleaning_task.save()
-            messages.success(request, f'Cleaning task "{cleaning_task.task_name}" added successfully!')
+            messages.success(
+                request,
+                f'Cleaning task "{cleaning_task.task_name}" added successfully!'
+                )
             return redirect('modules:cleaning_schedule')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -109,21 +128,31 @@ def edit_cleaning_task(request, task_id):
         form = CleaningTaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            messages.success(request, f'Cleaning task "{task.task_name}" updated successfully!')
+            messages.success(
+                request,
+                f'Cleaning task "{task.task_name}" updated successfully!'
+                )
             return redirect('modules:cleaning_schedule')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = CleaningTaskForm(instance=task)
 
-    return render(request, 'modules/edit_cleaning_task.html', {'form': form, 'task': task})
+    return render(
+        request,
+        'modules/edit_cleaning_task.html',
+        {'form': form, 'task': task}
+        )
 
 
 @login_required
 def delete_cleaning_task(request, task_id):
     """Delete cleaning task view"""
     if not check_module_access(request.user, 'cleaning_schedule'):
-        messages.error(request, 'You need to purchase the Cleaning Schedule module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Cleaning Schedule module to access this feature.'
+            )
         return redirect('shop:modules')
 
     task = get_object_or_404(CleaningTask, id=task_id, user=request.user)
@@ -141,7 +170,10 @@ def delete_cleaning_task(request, task_id):
 def complete_cleaning_task(request, task_id):
     """Mark cleaning task as complete and update next due date"""
     if not check_module_access(request.user, 'cleaning_schedule'):
-        messages.error(request, 'You need to purchase the Cleaning Schedule module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Cleaning Schedule module to access this feature.'
+            )
         return redirect('shop:modules')
 
     task = get_object_or_404(CleaningTask, id=task_id, user=request.user)
@@ -159,7 +191,9 @@ def complete_cleaning_task(request, task_id):
         task.next_due = task.last_completed + timedelta(days=30)
 
     task.save()
-    messages.success(request, f'Task "{task.task_name}" marked as complete! Next due: {task.next_due}')
+    messages.success(
+        request, f'Task "{task.task_name}" marked as complete! Next due: {task.next_due}'
+        )
     return redirect('modules:cleaning_schedule')
 
 
@@ -167,7 +201,10 @@ def complete_cleaning_task(request, task_id):
 def habit_tracker(request):
     """Display habit tracker with today's progress"""
     if not check_module_access(request.user, 'habit_tracker'):
-        messages.error(request, 'You need to purchase the Habit Tracker module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Habit Tracker module to access this feature.'
+            )
         return redirect('shop:modules')
 
     habits = HabitTracker.objects.filter(user=request.user, is_active=True)
@@ -200,7 +237,10 @@ def habit_tracker(request):
 def add_habit(request):
     """Add habit view"""
     if not check_module_access(request.user, 'habit_tracker'):
-        messages.error(request, 'You need to purchase the Habit Tracker module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Habit Tracker module to access this feature.'
+            )
         return redirect('shop:modules')
 
     if request.method == 'POST':
@@ -209,7 +249,10 @@ def add_habit(request):
             habit = form.save(commit=False)
             habit.user = request.user
             habit.save()
-            messages.success(request, f'Habit "{habit.habit_name}" added successfully!')
+            messages.success(
+                request,
+                f'Habit "{habit.habit_name}" added successfully!'
+                )
             return redirect('modules:habit_tracker')
     else:
         form = HabitTrackerForm()
@@ -251,7 +294,10 @@ def toggle_habit(request, habit_id):
 def edit_habit(request, habit_id):
     """Edit habit view"""
     if not check_module_access(request.user, 'habit_tracker'):
-        messages.error(request, 'You need to purchase the Habit Tracker module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Habit Tracker module to access this feature.'
+            )
         return redirect('shop:modules')
 
     habit = get_object_or_404(HabitTracker, id=habit_id, user=request.user)
@@ -260,19 +306,28 @@ def edit_habit(request, habit_id):
         form = HabitTrackerForm(request.POST, instance=habit)
         if form.is_valid():
             form.save()
-            messages.success(request, f'Habit "{habit.habit_name}" updated successfully!')
+            messages.success(
+                request,
+                f'Habit "{habit.habit_name}" updated successfully!'
+                )
             return redirect('modules:habit_tracker')
     else:
         form = HabitTrackerForm(instance=habit)
 
-    return render(request, 'modules/edit_habit.html', {'form': form, 'habit': habit})
+    return render(
+        request,
+        'modules/edit_habit.html', {'form': form, 'habit': habit}
+        )
 
 
 @login_required
 def delete_habit(request, habit_id):
     """Delete habit view"""
     if not check_module_access(request.user, 'habit_tracker'):
-        messages.error(request, 'You need to purchase the Habit Tracker module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Habit Tracker module to access this feature.'
+            )
         return redirect('shop:modules')
 
     habit = get_object_or_404(HabitTracker, id=habit_id, user=request.user)
@@ -280,7 +335,10 @@ def delete_habit(request, habit_id):
     if request.method == 'POST':
         habit_name = habit.habit_name
         habit.delete()
-        messages.success(request, f'Habit "{habit_name}" deleted successfully!')
+        messages.success(
+            request,
+            f'Habit "{habit_name}" deleted successfully!'
+            )
         return redirect('modules:habit_tracker')
 
     return render(request, 'modules/delete_habit.html', {'habit': habit})

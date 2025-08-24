@@ -116,6 +116,7 @@ def remove_from_cart(request, module_id):
 
     return JsonResponse({'success': False, 'message': 'Invalid request'})
 
+
 @login_required
 def clear_cart(request):
     """ Clear the entire shopping cart via AJAX """

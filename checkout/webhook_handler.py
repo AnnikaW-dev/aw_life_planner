@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from .models import Order, OrderLineItem
 from shop.models import Module, UserModule
 
-import json
 import time
 import logging
 
@@ -65,7 +64,9 @@ class StripeWH_Handler:
             intent = event['data']['object']
 
         pid = intent['id'] if isinstance(intent, dict) else intent.id
-        amount = intent['amount'] if isinstance(intent, dict) else intent.amount
+        amount = intent['amount'] if isinstance(
+            intent, dict
+            ) else intent.amount
         total = round(amount / 100, 2)
 
         logger.info(f"🎯 Processing payment_intent.succeeded for {pid}")
@@ -84,7 +85,9 @@ class StripeWH_Handler:
 
         # Get billing details
         if charges_data:
-            billing_details = charges_data[0].get('billing_details', {}) if isinstance(charges_data[0], dict) else charges_data[0].billing_details
+            billing_details = charges_data[0].get(
+                'billing_details', {}
+                )if isinstance(charges_data[0], dict) else charges_data[0].billing_details
             if isinstance(billing_details, dict):
                 email = billing_details.get('email', '')
                 name = billing_details.get('name', '')
@@ -117,7 +120,9 @@ class StripeWH_Handler:
                 status=200)
         else:
             # Create order from webhook (backup mechanism)
-            logger.warning(f"⚠️  Creating order from webhook for payment: {pid}")
+            logger.warning(
+                f"⚠️  Creating order from webhook for payment: {pid}"
+                )
 
             # Check if we have username - if not, we can't create order
             if not username or username == 'AnonymousUser':
@@ -154,7 +159,9 @@ class StripeWH_Handler:
                         for module_id in cart_item_ids:
                             if module_id.strip():
                                 try:
-                                    module = Module.objects.get(id=int(module_id.strip()))
+                                    module = Module.objects.get(
+                                        id=int(module_id.strip())
+                                        )
                                     OrderLineItem.objects.create(
                                         order=order,
                                         module=module,
@@ -170,7 +177,9 @@ class StripeWH_Handler:
                     except Exception as e:
                         logger.error(f"❌ Error processing cart items: {e}")
 
-                logger.info(f"✅ Order created from webhook: {order.order_number}")
+                logger.info(
+                    f"✅ Order created from webhook: {order.order_number}"
+                    )
 
             except Exception as e:
                 logger.error(f"❌ Error creating order from webhook: {e}")

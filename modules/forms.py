@@ -3,31 +3,57 @@ from django import forms
 from django.utils import timezone
 from .models import MealPlan, CleaningTask, HabitTracker
 
+
 class MealPlanForm(forms.ModelForm):
     class Meta:
         model = MealPlan
-        fields = ['date', 'breakfast', 'lunch', 'dinner', 'snacks', 'water_intake', 'notes']
+        fields = [
+            'date', 'breakfast',
+            'lunch', 'dinner',
+            'snacks', 'water_intake',
+            'notes'
+            ]
         widgets = {
             'date': forms.DateInput(attrs={
                 'type': 'date',
                 'class': 'form-control',
                 'value': timezone.now().date()
             }),
-            'breakfast': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
-            'lunch': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
-            'dinner': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
-            'snacks': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
-            'water_intake': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'breakfast': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 2}
+                ),
+            'lunch': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 2}),
+            'dinner': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 2}
+                ),
+            'snacks': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 2}
+                ),
+            'water_intake': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': 0}
+                ),
+            'notes': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 2}
+                ),
         }
+
 
 class CleaningTaskForm(forms.ModelForm):
     class Meta:
         model = CleaningTask
         fields = ['task_name', 'room', 'frequency', 'next_due', 'notes']
         widgets = {
-            'task_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Vacuum Living Room'}),
-            'room': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Living Room'}),
+            'task_name': forms.TextInput(
+                attrs={'class': 'form-control',
+                       'placeholder': 'e.g., Vacuum Living Room'}
+                ),
+            'room': forms.TextInput(
+                attrs={
+                    'class': 'form-control',
+                    'placeholder': 'e.g., Living Room'
+                    }
+                ),
             'frequency': forms.Select(attrs={'class': 'form-control'}),
             'next_due': forms.DateInput(attrs={
                 'type': 'date',
@@ -59,6 +85,7 @@ class CleaningTaskForm(forms.ModelForm):
         if next_due and next_due < timezone.now().date():
             raise forms.ValidationError("Next due date cannot be in the past.")
         return next_due
+
 
 class HabitTrackerForm(forms.ModelForm):
     class Meta:

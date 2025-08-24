@@ -4,16 +4,18 @@ import subprocess
 import sys
 import os
 
+
 def run_command(command):
     """Run a command using the current Python executable"""
     try:
         # Use the same Python executable that's running this script
-        cmd = [sys.executable] + command.split()[1:]  # Skip 'python' and use sys.executable
+        cmd = [sys.executable] + command.split()[1:]
         result = subprocess.run(cmd, cwd=os.getcwd())
         return result.returncode == 0
     except Exception as e:
         print(f"❌ Error: {e}")
         return False
+
 
 def smoke_test():
     """Quick system check"""
@@ -27,17 +29,21 @@ def smoke_test():
         print("❌ Django setup has issues!")
     return success
 
+
 def webhook_tests():
     """Run webhook tests"""
     print("🧪 Running Webhook Tests...")
     print("-" * 40)
 
-    success = run_command("python manage.py test tests.test_webhooks checkout.tests -v 2")
+    success = run_command(
+        "python manage.py test tests.test_webhooks checkout.tests -v 2"
+        )
     if success:
         print("✅ Webhook tests passed!")
     else:
         print("❌ Webhook tests failed!")
     return success
+
 
 def all_tests():
     """Run all tests"""
@@ -50,6 +56,7 @@ def all_tests():
     else:
         print("❌ Some tests failed!")
     return success
+
 
 def main():
     if len(sys.argv) > 1:
@@ -73,6 +80,7 @@ def main():
         sys.exit(1)
 
     sys.exit(0 if success else 1)
+
 
 if __name__ == "__main__":
     main()

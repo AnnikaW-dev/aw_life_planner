@@ -5,10 +5,10 @@ import stripe
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.conf import settings
-from unittest.mock import patch, Mock
-from checkout.models import Order, OrderLineItem
-from shop.models import Module, UserModule, Category
+from shop.models import Module, Category
+from unittest.mock import patch
+from checkout.models import Order
+
 
 class WebhookTestCase(TestCase):
     """Base test case for webhook tests"""
@@ -59,11 +59,12 @@ class WebhookTestCase(TestCase):
             }
         }
 
-    def create_mock_payment_intent(self, status='succeeded', amount=999, pid=None):
+    def create_mock_payment_intent(
+            self, status='succeeded', amount=999, pid=None
+            ):
         """Create mock payment intent data with unique ID"""
         if pid is None:
-            pid = f'pi_test_payment_intent_{id(self)}'  # Make unique per test instance
-
+            pid = f'pi_test_payment_intent_{id(self)}'
         return {
             'id': pid,
             'object': 'payment_intent',
@@ -85,15 +86,19 @@ class WebhookTestCase(TestCase):
             }
         }
 
+
 class WebhookSuccessTests(WebhookTestCase):
     """Test successful webhook scenarios"""
 
     @patch('stripe.Webhook.construct_event')
-    def test_payment_intent_succeeded_existing_order(self, mock_construct_event):
+    def test_payment_intent_succeeded_existing_order(self,
+                                                     mock_construct_event):
         """Test webhook when order already exists (normal flow)"""
         pid = 'pi_test_existing_order'
         payment_intent = self.create_mock_payment_intent(pid=pid)
-        event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+        event = self.create_mock_webhook_event(
+            'payment_intent.succeeded', payment_intent
+            )
         mock_construct_event.return_value = event
 
         # Create existing order with same PID
@@ -117,11 +122,14 @@ class WebhookSuccessTests(WebhookTestCase):
         self.assertEqual(Order.objects.count(), 1)
 
     @patch('stripe.Webhook.construct_event')
-    def test_payment_intent_succeeded_backup_creation(self, mock_construct_event):
+    def test_payment_intent_succeeded_backup_creation(self,
+                                                      mock_construct_event):
         """Test order creation when main flow fails"""
         pid = 'pi_test_backup_creation'
         payment_intent = self.create_mock_payment_intent(pid=pid)
-        event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+        event = self.create_mock_webhook_event(
+            'payment_intent.succeeded', payment_intent
+            )
         mock_construct_event.return_value = event
 
         # No existing order - webhook should create one
@@ -140,6 +148,7 @@ class WebhookSuccessTests(WebhookTestCase):
         order = Order.objects.first()
         self.assertEqual(order.stripe_pid, pid)
         self.assertEqual(order.user, self.user)
+
 
 class WebhookErrorTests(WebhookTestCase):
     """Test webhook error handling"""
@@ -180,7 +189,9 @@ class WebhookErrorTests(WebhookTestCase):
         pid = 'pi_test_missing_metadata'
         payment_intent = self.create_mock_payment_intent(pid=pid)
         payment_intent['metadata'] = {}  # Remove username
-        event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+        event = self.create_mock_webhook_event(
+            'payment_intent.succeeded', payment_intent
+            )
         mock_construct_event.return_value = event
 
         # Make sure no orders exist initially
@@ -197,6 +208,7 @@ class WebhookErrorTests(WebhookTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Order.objects.count(), 0)
 
+
 class WebhookReliabilityTests(WebhookTestCase):
     """Test webhook reliability and edge cases"""
 
@@ -205,7 +217,9 @@ class WebhookReliabilityTests(WebhookTestCase):
         """Test handling of duplicate webhook events"""
         pid = 'pi_test_duplicate_handling'
         payment_intent = self.create_mock_payment_intent(pid=pid)
-        event = self.create_mock_webhook_event('payment_intent.succeeded', payment_intent)
+        event = self.create_mock_webhook_event(
+            'payment_intent.succeeded', payment_intent
+            )
         mock_construct_event.return_value = event
 
         # Create order first
