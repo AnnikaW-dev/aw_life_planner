@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}500 - Server Error{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <h1 class="display-1 text-danger">500</h1>
+    <h2 class="mb-4">Internal Server Error</h2>
+    <p class="lead mb-5">Sorry, something went wrong on our end. We're working to fix it as soon as possible.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Go Back Home</a>
+</div>
+{% endblock %}

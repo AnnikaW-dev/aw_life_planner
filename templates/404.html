@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}404 - Page Not Found{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <h1 class="display-1 text-muted">404</h1>
+    <h2 class="mb-4">Oops! Page Not Found</h2>
+    <p class="lead mb-5">We couldn't find the page you're looking for. It might have been moved or doesn't exist.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Go Back Home</a>
+</div>
+{% endblock %}
