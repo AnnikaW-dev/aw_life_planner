@@ -25,9 +25,15 @@ def verify_stripe_keys():
     webhook_secret = os.environ.get('STRIPE_WH_SECRET')
 
     print("Stripe Configuration:")
-    print(f"✅ Public Key: {'✓' if public_key and public_key.startswith('pk_') else '❌'}")
-    print(f"✅ Secret Key: {'✓' if secret_key and secret_key.startswith('sk_') else '❌'}")
-    print(f"✅ Webhook Secret: {'✓' if webhook_secret and webhook_secret.startswith('whsec_') else '❌'}")
+    print(f"✅ Public Key: {
+        '✓' if public_key and public_key.startswith('pk_') else '❌'
+        }")
+    print(f"✅ Secret Key: {
+        '✓' if secret_key and secret_key.startswith('sk_') else '❌'
+        }")
+    print(f"✅ Webhook Secret: {
+        '✓' if webhook_secret and webhook_secret.startswith('whsec_') else '❌'
+        }")
 
     return all([public_key, secret_key, webhook_secret])
 

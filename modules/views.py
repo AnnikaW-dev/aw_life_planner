@@ -24,7 +24,8 @@ def meal_planner(request):
     if not check_module_access(request.user, 'meal_planner'):
         messages.error(
             request,
-            'You need to purchase the Meal Planner module to access this feature.'
+            'You need to purchase the Meal '
+            'Planner module to access this feature.'
             )
         return redirect('shop:modules')
 
@@ -44,7 +45,8 @@ def add_meal_plan(request):
     if not check_module_access(request.user, 'meal_planner'):
         messages.error(
             request,
-            'You need to purchase the Meal Planner module to access this feature.'
+            'You need to purchase the Meal '
+            'Planner module to access this feature.'
             )
         return redirect('shop:modules')
 
@@ -68,7 +70,8 @@ def cleaning_schedule(request):
     if not check_module_access(request.user, 'cleaning_schedule'):
         messages.error(
             request,
-            'You need to purchase the Cleaning Schedule module to access this feature.'
+            'You need to purchase the Cleaning '
+            'Schedule module to access this feature.'
             )
         return redirect('shop:modules')
 
@@ -92,7 +95,8 @@ def add_cleaning_task(request):
     if not check_module_access(request.user, 'cleaning_schedule'):
         messages.error(
             request,
-            'You need to purchase the Cleaning Schedule module to access this feature.'
+            'You need to purchase the '
+            'Cleaning Schedule module to access this feature.'
             )
         return redirect('shop:modules')
 
@@ -104,7 +108,8 @@ def add_cleaning_task(request):
             cleaning_task.save()
             messages.success(
                 request,
-                f'Cleaning task "{cleaning_task.task_name}" added successfully!'
+                f'Cleaning task "{cleaning_task.task_name}"'
+                f' added successfully!'
                 )
             return redirect('modules:cleaning_schedule')
         else:
@@ -119,7 +124,10 @@ def add_cleaning_task(request):
 def edit_cleaning_task(request, task_id):
     """Edit cleaning task view"""
     if not check_module_access(request.user, 'cleaning_schedule'):
-        messages.error(request, 'You need to purchase the Cleaning Schedule module to access this feature.')
+        messages.error(
+            request,
+            'You need to purchase the Cleaning Schedule '
+            'module to access this feature.')
         return redirect('shop:modules')
 
     task = get_object_or_404(CleaningTask, id=task_id, user=request.user)
@@ -151,7 +159,8 @@ def delete_cleaning_task(request, task_id):
     if not check_module_access(request.user, 'cleaning_schedule'):
         messages.error(
             request,
-            'You need to purchase the Cleaning Schedule module to access this feature.'
+            'You need to purchase the Cleaning'
+            ' Schedule module to access this feature.'
             )
         return redirect('shop:modules')
 
@@ -160,7 +169,8 @@ def delete_cleaning_task(request, task_id):
     if request.method == 'POST':
         task_name = task.task_name
         task.delete()
-        messages.success(request, f'Cleaning task "{task_name}" deleted successfully!')
+        messages.success(request, f'Cleaning task "{task_name}"'
+                         f' deleted successfully!')
         return redirect('modules:cleaning_schedule')
 
     return render(request, 'modules/delete_cleaning_task.html', {'task': task})
@@ -172,7 +182,8 @@ def complete_cleaning_task(request, task_id):
     if not check_module_access(request.user, 'cleaning_schedule'):
         messages.error(
             request,
-            'You need to purchase the Cleaning Schedule module to access this feature.'
+            'You need to purchase the Cleaning '
+            'Schedule module to access this feature.'
             )
         return redirect('shop:modules')
 
@@ -192,7 +203,8 @@ def complete_cleaning_task(request, task_id):
 
     task.save()
     messages.success(
-        request, f'Task "{task.task_name}" marked as complete! Next due: {task.next_due}'
+        request, f'Task "{task.task_name}" marked as complete! '
+        f'Next due: {task.next_due}'
         )
     return redirect('modules:cleaning_schedule')
 
@@ -203,7 +215,8 @@ def habit_tracker(request):
     if not check_module_access(request.user, 'habit_tracker'):
         messages.error(
             request,
-            'You need to purchase the Habit Tracker module to access this feature.'
+            'You need to purchase the Habit '
+            'Tracker module to access this feature.'
             )
         return redirect('shop:modules')
 
@@ -239,7 +252,8 @@ def add_habit(request):
     if not check_module_access(request.user, 'habit_tracker'):
         messages.error(
             request,
-            'You need to purchase the Habit Tracker module to access this feature.'
+            'You need to purchase the Habit '
+            'Tracker module to access this feature.'
             )
         return redirect('shop:modules')
 
@@ -284,7 +298,9 @@ def toggle_habit(request, habit_id):
             'success': True,
             'completed': habit_log.completed,
             'streak': streak,
-            'message': f'Habit {"completed" if habit_log.completed else "unchecked"} for today!'
+            'message': f'Habit {
+                "completed" if habit_log.completed else "unchecked"
+                } for today!'
         })
 
     return JsonResponse({'success': False, 'message': 'Invalid request'})
@@ -296,7 +312,8 @@ def edit_habit(request, habit_id):
     if not check_module_access(request.user, 'habit_tracker'):
         messages.error(
             request,
-            'You need to purchase the Habit Tracker module to access this feature.'
+            'You need to purchase the Habit '
+            'Tracker module to access this feature.'
             )
         return redirect('shop:modules')
 
@@ -326,7 +343,8 @@ def delete_habit(request, habit_id):
     if not check_module_access(request.user, 'habit_tracker'):
         messages.error(
             request,
-            'You need to purchase the Habit Tracker module to access this feature.'
+            'You need to purchase the Habit '
+            'Tracker module to access this feature.'
             )
         return redirect('shop:modules')
 

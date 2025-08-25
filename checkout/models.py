@@ -29,7 +29,7 @@ class Order(models.Model):
 
     def __str__(self):
         """ String representation of the order """
-        return f"Order {self.order_number}" if self.order_number else f"Order #{self.id}"
+        return f"Order {self.order_number or self.id}"
 
     class Meta:
         ordering = ['-date']

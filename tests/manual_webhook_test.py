@@ -28,7 +28,8 @@ class WebhookTester:
                     "object": "payment_intent",
                     "amount": amount,
                     "currency": "usd",
-                    "status": "succeeded" if "succeeded" in event_type else "requires_payment_method",
+                    "status": "succeeded" if "succeeded"
+                    in event_type else "requires_payment_method",
                     "metadata": {
                         "username": username,
                         "order_id": f"test_order_{int(time.time())}"
@@ -89,7 +90,8 @@ class WebhookTester:
             print("✅ payment_intent.created - SUCCESS")
         else:
             print(
-                f"❌ payment_intent.created - FAILED ({response.status_code if response else 'No response'})"
+                f"❌ payment_intent.created - FAILED "
+                f"({response.status_code if response else 'No response'})"
                 )
 
         time.sleep(1)  # Simulate time between events
@@ -103,7 +105,8 @@ class WebhookTester:
         if response and response.status_code == 200:
             print("✅ payment_intent.succeeded - SUCCESS")
         else:
-            print(f"❌ payment_intent.succeeded - FAILED ({response.status_code if response else 'No response'})")
+            print(f"❌ payment_intent.succeeded - FAILED "
+                  f"({response.status_code if response else 'No response'})")
 
     def test_error_scenarios(self):
         """Test various error scenarios"""
@@ -138,7 +141,8 @@ class WebhookTester:
             print("✅ Missing user metadata - Handled gracefully")
         else:
             print(
-                f"❌ Missing user metadata - Failed ({response.status_code if response else 'No response'})"
+                f"❌ Missing user metadata - Failed "
+                f"({response.status_code if response else 'No response'})"
                 )
 
         # Test 3: Nonexistent user
@@ -153,7 +157,8 @@ class WebhookTester:
             print("✅ Nonexistent user - Handled gracefully")
         else:
             print(
-                f"❌ Nonexistent user - Failed ({response.status_code if response else 'No response'})"
+                f"❌ Nonexistent user - Failed "
+                f"({response.status_code if response else 'No response'})"
                 )
 
     def test_duplicate_events(self):
@@ -204,7 +209,8 @@ class WebhookTester:
 
             time.sleep(0.1)  # Small delay between events
 
-        print(f"\n📊 High Volume Test Results: {success_count}/{total_events} succeeded")
+        print(f"\n📊 High Volume Test Results: "
+              f"{success_count}/{total_events} succeeded")
         if success_count == total_events:
             print("✅ All high volume events processed successfully")
         else:

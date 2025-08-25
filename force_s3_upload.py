@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # force_s3_upload.py - Manually upload static files to S3
 
 import os
@@ -14,7 +13,7 @@ django.setup()
 
 
 # Create S3 storage directly
-class TempStaticStorage(S3Boto3Storage):
+class TempStaticStorage(S3Boto3Storage)
     location = 'static'
     default_acl = 'public-read'
     file_overwrite = True
@@ -53,4 +52,5 @@ for relative_path, absolute_path in static_files:
         print(f"⚠️  File not found: {absolute_path}")
 
 print(f"\n🎉 Upload complete! {uploaded_count} files uploaded to S3")
-print(f"🌐 Your static files should be available at: https://{storage.bucket_name}.s3.amazonaws.com/static/")
+print(f"🌐 Your static files should be available at:"
+      f" https://{storage.bucket_name}.s3.amazonaws.com/static/")

@@ -64,9 +64,10 @@ class StripeWH_Handler:
             intent = event['data']['object']
 
         pid = intent['id'] if isinstance(intent, dict) else intent.id
-        amount = intent['amount'] if isinstance(
-            intent, dict
-            ) else intent.amount
+        amount = (
+            intent['amount'] if isinstance(intent, dict)
+            else intent.amount
+        )
         total = round(amount / 100, 2)
 
         logger.info(f"🎯 Processing payment_intent.succeeded for {pid}")
@@ -85,9 +86,11 @@ class StripeWH_Handler:
 
         # Get billing details
         if charges_data:
-            billing_details = charges_data[0].get(
-                'billing_details', {}
-                )if isinstance(charges_data[0], dict) else charges_data[0].billing_details
+            billing_details = (
+                charges_data[0].get('billing_details', {})
+                if isinstance(charges_data[0], dict)
+                else charges_data[0].billing_details
+            )
             if isinstance(billing_details, dict):
                 email = billing_details.get('email', '')
                 name = billing_details.get('name', '')
@@ -115,20 +118,34 @@ class StripeWH_Handler:
         if order_exists:
             # Order already exists, send confirmation email
             self._send_confirmation_email(order)
+            event_type = (
+                event["type"] if isinstance(event, dict)
+                else event.type
+            )
             return HttpResponse(
-                content=f'Webhook received: {event["type"] if isinstance(event, dict) else event.type} | SUCCESS: Verified order already in database',
+                content=(
+                    f'Webhook received: {event_type} | '
+                    f'SUCCESS: Verified order already in database'
+                ),
                 status=200)
         else:
             # Create order from webhook (backup mechanism)
             logger.warning(
                 f"⚠️  Creating order from webhook for payment: {pid}"
-                )
+            )
 
             # Check if we have username - if not, we can't create order
             if not username or username == 'AnonymousUser':
                 logger.error(f"❌ No username in payment metadata for {pid}")
+                event_type = (
+                    event["type"] if isinstance(event, dict)
+                    else event.type
+                )
                 return HttpResponse(
-                    content=f'Webhook received: {event["type"] if isinstance(event, dict) else event.type} | ERROR: No username in metadata',
+                    content=(
+                        f'Webhook received: {event_type} | '
+                        f'ERROR: No username in metadata'
+                    ),
                     status=200)  # Return 200 but don't create order
 
             order = None
@@ -138,14 +155,26 @@ class StripeWH_Handler:
                     user = User.objects.get(username=username)
                 except User.DoesNotExist:
                     logger.error(f"❌ User not found: {username}")
+                    event_type = (
+                        event["type"] if isinstance(event, dict)
+                        else event.type
+                    )
                     return HttpResponse(
-                        content=f'Webhook received: {event["type"] if isinstance(event, dict) else event.type} | ERROR: User not found',
+                        content=(
+                            f'Webhook received: {event_type} | '
+                            f'ERROR: User not found'
+                        ),
                         status=200)  # Return 200 but don't create order
 
                 # Create order
+                full_name = (
+                    name or
+                    (f"{user.first_name} {user.last_name}"
+                     f" if user else username")
+                )
                 order = Order.objects.create(
                     user=user,
-                    full_name=name or (f"{user.first_name} {user.last_name}" if user else username),
+                    full_name=full_name,
                     email=email or user.email,
                     phone_number="",  # Not available in webhook
                     total=total,
@@ -161,7 +190,7 @@ class StripeWH_Handler:
                                 try:
                                     module = Module.objects.get(
                                         id=int(module_id.strip())
-                                        )
+                                    )
                                     OrderLineItem.objects.create(
                                         order=order,
                                         module=module,
@@ -171,28 +200,45 @@ class StripeWH_Handler:
                                         user=user,
                                         module=module
                                     )
-                                    logger.info(f"✅ Added module {module.name} to order {order.order_number}")
+                                    logger.info(
+                                        f"✅ Added module {module.name} "
+                                        f"to order {order.order_number}"
+                                    )
                                 except (Module.DoesNotExist, ValueError) as e:
-                                    logger.error(f"❌ Error processing module {module_id}: {e}")
+                                    logger.error(
+                                        f"❌ Error processing module "
+                                        f"{module_id}: {e}"
+                                    )
                     except Exception as e:
                         logger.error(f"❌ Error processing cart items: {e}")
 
                 logger.info(
                     f"✅ Order created from webhook: {order.order_number}"
-                    )
+                )
 
             except Exception as e:
                 logger.error(f"❌ Error creating order from webhook: {e}")
                 if order:
                     order.delete()
+                event_type = (
+                    event["type"] if isinstance(event, dict)
+                    else event.type
+                )
                 return HttpResponse(
-                    content=f'Webhook received: {event["type"] if isinstance(event, dict) else event.type} | ERROR: {e}',
+                    content=f'Webhook received: {event_type} | ERROR: {e}',
                     status=500)
 
             # Send confirmation email for webhook-created order
             self._send_confirmation_email(order)
+            event_type = (
+                event["type"] if isinstance(event, dict)
+                else event.type
+            )
             return HttpResponse(
-                content=f'Webhook received: {event["type"] if isinstance(event, dict) else event.type} | SUCCESS: Created order in webhook',
+                content=(
+                    f'Webhook received: {event_type} | '
+                    f'SUCCESS: Created order in webhook'
+                ),
                 status=200)
 
     def handle_payment_intent_payment_failed(self, event):

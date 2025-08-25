@@ -97,7 +97,8 @@ class WebhookTestHelpers:
                     'object': 'payment_intent',
                     'amount': amount,
                     'currency': 'usd',
-                    'status': 'succeeded' if 'succeeded' in event_type else 'requires_payment_method',
+                    'status': 'succeeded' if 'succeeded' in event_type
+                    else 'requires_payment_method',
                     'metadata': {
                         'username': username
                     }

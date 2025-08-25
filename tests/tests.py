@@ -282,7 +282,9 @@ class WebhookIntegrationTests(WebhookTestCase):
 
         # Verify user has module access
         self.assertTrue(
-            UserModule.objects.filter(user=self.user, module=self.module).exists()
+            UserModule.objects.filter(
+                user=self.user, module=self.module
+                ).exists()
         )
 
 
