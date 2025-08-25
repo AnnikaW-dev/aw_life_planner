@@ -13,5 +13,3 @@ class UserProfileAdmin(admin.ModelAdmin):
         'user__username',
         'user__email',
     ]
-
-# Register your models here.
