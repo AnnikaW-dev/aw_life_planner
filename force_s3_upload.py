@@ -13,7 +13,7 @@ django.setup()
 
 
 # Create S3 storage directly
-class TempStaticStorage(S3Boto3Storage)
+class TempStaticStorage(S3Boto3Storage):
     location = 'static'
     default_acl = 'public-read'
     file_overwrite = True
@@ -21,7 +21,7 @@ class TempStaticStorage(S3Boto3Storage)
 
 storage = TempStaticStorage()
 
-print(f"🔍 Using S3 storage")
+print("🔍 Using S3 storage")
 print(f"🔍 Bucket: {getattr(storage, 'bucket_name', 'Not found')}")
 print(f"🔍 Location: {getattr(storage, 'location', 'Not found')}")
 

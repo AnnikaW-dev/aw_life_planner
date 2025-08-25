@@ -102,7 +102,7 @@ class WebhookSuccessTests(WebhookTestCase):
         mock_construct_event.return_value = event
 
         # Create existing order with same PID
-        order = Order.objects.create(
+        Order.objects.create(
             user=self.user,
             full_name='Test User',
             email='test@example.com',
@@ -156,8 +156,11 @@ class WebhookErrorTests(WebhookTestCase):
     def test_invalid_signature(self):
         """Test webhook with invalid signature"""
         with patch('stripe.Webhook.construct_event') as mock_construct:
-            mock_construct.side_effect = stripe.error.SignatureVerificationError(
-                'Invalid signature', 'sig_header'
+            mock_construct.side_effect = (
+                stripe.error.SignatureVerificationError(
+                    'Invalid signature',
+                    'sig_header'
+                    )
             )
 
             response = self.client.post(

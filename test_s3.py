@@ -29,9 +29,9 @@ try:
 
     # Check if file exists
     if storage.exists(file_name):
-        print(f"✅ File exists in storage")
+        print("✅ File exists in storage")
     else:
-        print(f"❌ File does not exist in storage")
+        print("❌ File does not exist in storage")
 
     # Get the URL
     url = storage.url(file_name)

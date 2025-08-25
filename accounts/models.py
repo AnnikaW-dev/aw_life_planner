@@ -18,5 +18,3 @@ def create_or_uppdate_user_profile(sender, instance, created, **kargs):
     if created:
         UserProfile.objects.create(user=instance)
     instance.userprofile.save()
-
-# Create your models here.
