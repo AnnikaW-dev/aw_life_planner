@@ -4,10 +4,13 @@ Django settings for aw_life_planner project.
 """
 
 import os
-from pathlib import Path
 import dj_database_url
+import sys
+
+from pathlib import Path
 from dotenv import load_dotenv
 from django.contrib.messages import constants as messages
+
 
 # Load environment variables
 load_dotenv()
@@ -275,43 +278,70 @@ HTML_VALIDATOR_ENABLED = DEBUG  # Only validate in development
 HTML_VALIDATOR_OUTPUT_DIR = os.path.join(BASE_DIR, 'html_validation_reports')
 
 # Security logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} '
-            '{process:d} {thread:d} {message}',
-            'style': '{',
+if DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'security': {
+                'format': '[SECURITY] {asctime} {levelname} {message}',
+                'style': '{',
+            },
         },
-        'security': {
-            'format': '[SECURITY] {asctime} {levelname} {message}',
-            'style': '{',
+        'handlers': {
+            'security_file': {
+                'level': 'INFO',
+                'class': 'logging.FileHandler',
+                'filename': str(BASE_DIR / "logs/security.log"),
+                'formatter': 'security',
+            },
+            'console': {
+                'level': 'WARNING',
+                'class': 'logging.StreamHandler',
+                'stream': sys.stdout,
+            },
         },
-    },
-    'handlers': {
-        'security_file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': 'logs/security.log',
-            'formatter': 'security',
+        'loggers': {
+            'diary.views': {
+                'handlers': ['security_file', 'console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'modules.views': {
+                'handlers': ['security_file', 'console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
         },
-        'console': {
-            'level': 'WARNING',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+    }
+else:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'security': {
+                'format': '[SECURITY] {asctime} {levelname} {message}',
+                'style': '{',
+            },
         },
-    },
-    'loggers': {
-        'diary.views': {  # Your diary app
-            'handlers': ['security_file', 'console'],
-            'level': 'INFO',
-            'propagate': False,
+        'handlers': {
+            'console': {
+                'level': 'INFO',
+                'class': 'logging.StreamHandler',
+                'stream': sys.stdout,
+                'formatter': 'security',
+            },
         },
-        'modules.views': {  # Your modules app
-            'handlers': ['security_file', 'console'],
-            'level': 'INFO',
-            'propagate': False,
+        'loggers': {
+            'diary.views': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'modules.views': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
         },
-    },
-}
+    }
