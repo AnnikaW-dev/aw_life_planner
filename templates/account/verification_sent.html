@@ -2,6 +2,47 @@
 {% load static %}
 
 {% block title %}Verify Your Email Address{% endblock %}
+{% block extra_css %}
+<style>
+.verification-steps {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color), #357abd) !important;
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+    color: #1976d2;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), #357abd);
+    border: none;
+    transition: transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.text-sm small {
+    font-size: 0.875rem;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -88,44 +129,4 @@
         </div>
     </div>
 </div>
-
-<style>
-.verification-steps {
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.card-header {
-    background: linear-gradient(135deg, var(--primary-color), #357abd) !important;
-}
-
-.alert-info {
-    background-color: #e3f2fd;
-    border-color: #2196f3;
-    color: #1976d2;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), #357abd);
-    border: none;
-    transition: transform 0.2s ease;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-}
-
-.text-sm small {
-    font-size: 0.875rem;
-}
-
-.bg-light {
-    background-color: #f8f9fa !important;
-}
-</style>
 {% endblock %}

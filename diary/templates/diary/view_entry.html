@@ -13,7 +13,7 @@
                         {% if entry.mood %} - {{ entry.get_mood_display }}{% endif %}
                     </p>
                     <hr>
-                    <p>{{ entry.content|linebreaks }}</p>
+                    {{ entry.content|linebreaks }}
                     <hr>
                     <a href="{% url 'diary:edit_entry' entry.id %}" class="btn btn-secondary">
                         Edit

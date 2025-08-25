@@ -65,12 +65,9 @@
                                     <!-- Today's Status -->
                                     <div class="today-status text-center">
                                         <p class="mb-2"><strong>Today ({{ today|date:"M d" }}):</strong></p>
-                                        <button class="btn btn-lg habit-toggle-btn {% if data.completed_today %}btn-success{% else %}btn-outline-success{% endif %}"
-                                                ({{ data.habit.id }})"
-                                                id="toggle-btn-{{ data.habit.id }}">
-                                            <i class="fas {% if data.completed_today %}fa-check-circle{% else %}fa-circle{% endif %} me-2"
-                                               id="toggle-icon-{{ data.habit.id }}"></i>
-                                            <span id="toggle-text-{{ data.habit.id }}">
+                                        <button class="btn btn-lg habit-toggle-btn {% if data.completed_today %}btn-success{% else %}btn-outline-success{% endif %}">
+                                            <i class="fas {% if data.completed_today %}fa-check-circle{% else %}fa-circle{% endif %} me-2"></i>
+                                            <span>
                                                 {% if data.completed_today %}Completed!{% else %}Mark Done{% endif %}
                                             </span>
                                         </button>

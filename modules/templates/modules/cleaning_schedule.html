@@ -124,11 +124,15 @@
                                     </div>
                                     <div class="col-6 col-md-3">
                                         <div class="stat-item">
-                                            <h3 class="text-warning mb-1">
+                                            {% with 0 as count %}
                                                 {% for task in tasks %}
-                                                    {% if task.next_due == today %}{{ forloop.counter }}{% endif %}
-                                                {% empty %}0{% endfor %}
-                                            </h3>
+                                                    {% if task.next_due == today %}
+                                                        {% with count|add:"1" as count %}
+                                                        {% endwith %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <h3 class="text-warning mb-1">{{ count }}</h3>
+                                            {% endwith %}
                                             <p class="mb-0 small">Due Today</p>
                                         </div>
                                     </div>
@@ -190,5 +194,5 @@
         margin-right: 0.25rem;
         margin-bottom: 0.25rem;
     }
-    </style>
+</style>
 {% endblock %}
