@@ -97,7 +97,6 @@ def checkout(request):
                     continue  # Already handled above
 
             # Send confirmation email
-            try:
                 subject = render_to_string(
                     'checkout/confirmation_emails/'
                     'confirmation_email_subject.txt',
@@ -114,9 +113,6 @@ def checkout(request):
                     [order.email],
                     fail_silently=True,  # Don't break checkout if email fails
                 )
-            except Exception as e:
-                # Log error but don't break the checkout process
-                print(f"Failed to send confirmation email: {e}")
 
             # Clear the cart
             if 'cart' in request.session:

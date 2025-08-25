@@ -184,10 +184,6 @@ MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
 # This is the key change - use the basic S3Boto3Storage class
 
 
-# Debug message
-print(f"🔧 AWS S3 configured: https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/")
-print(f"🔍 STATICFILES_STORAGE is set to: {STATICFILES_STORAGE}")
-
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
