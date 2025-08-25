@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}404 - Page Not Found{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <h1 class="display-1 text-muted">403</h1>
+    <h2 class="mb-4">Oops! You don't have access to this.</h2>
+    <p class="lead mb-5">You do not have access to this page.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Go Back Home</a>
+</div>
+{% endblock %}

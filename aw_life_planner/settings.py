@@ -95,7 +95,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
-                # egna context processors om du vill (ex. bag.contexts)
             ],
             'builtins': [
                 'crispy_forms.templatetags.crispy_forms_tags',
@@ -203,7 +202,7 @@ SITE_ID = 1
 # Allauth settings (striktare än default)
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_SIGNUP_EMAIL_ENTER_TWICE = True
 ACCOUNT_USERNAME_MIN_LENGTH = 4
 LOGIN_URL = '/accounts/login/'
@@ -271,14 +270,48 @@ MESSAGE_TAGS = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Temporary debug - add this after imports
-print(f"🔍 AWS_ACCESS_KEY_ID exists: {bool(os.environ.get(
-    'AWS_ACCESS_KEY_ID'
-    ))}")
-print(f"🔍 AWS_SECRET_ACCESS_KEY exists: {bool(os.environ.get(
-    'AWS_SECRET_ACCESS_KEY'
-    ))}")
-print(f"🔍 AWS_STORAGE_BUCKET_NAME: {os.environ.get(
-    'AWS_STORAGE_BUCKET_NAME'
-    )}")
-print(f"🔍 AWS_S3_REGION_NAME: {os.environ.get('AWS_S3_REGION_NAME')}")
+# HTML Validator Configuration
+HTML_VALIDATOR_ENABLED = DEBUG  # Only validate in development
+HTML_VALIDATOR_OUTPUT_DIR = os.path.join(BASE_DIR, 'html_validation_reports')
+
+# Security logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} '
+            '{process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'security': {
+            'format': '[SECURITY] {asctime} {levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'security_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/security.log',
+            'formatter': 'security',
+        },
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'diary.views': {  # Your diary app
+            'handlers': ['security_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'modules.views': {  # Your modules app
+            'handlers': ['security_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

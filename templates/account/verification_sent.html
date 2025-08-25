@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Verify Your Email Address{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white text-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-envelope-open-text me-2"></i>
+                    Verify Your Email Address
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <div class="alert alert-info d-inline-block">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Confirmation email sent to <strong>test9@test.com</strong>
+                    </div>
+                </div>
+
+                <div class="verification-steps">
+                    <h5 class="text-center mb-4">📧 Check Your Email</h5>
+
+                    <p class="lead text-center mb-4">
+                        We've sent a verification email to help secure your account.
+                        Please follow the link in the email to complete your registration.
+                    </p>
+
+                    <div class="bg-light p-3 rounded mb-4">
+                        <h6><i class="fas fa-lightbulb text-warning me-2"></i>Next Steps:</h6>
+                        <ol class="mb-0">
+                            <li>Check your email inbox (including spam folder)</li>
+                            <li>Click the verification link in the email</li>
+                            <li>Return here to sign in to your account</li>
+                        </ol>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Didn't receive the email?</strong>
+                        <br>
+                        Check your spam folder or contact us if you don't receive the verification email within a few minutes.
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{% url 'account_login' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Sign In
+                    </a>
+                    <a href="{% url 'account_signup' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Create New Account
+                    </a>
+                    <a href="{% url 'home' %}" class="btn btn-link">
+                        <i class="fas fa-home me-2"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Helpful Information Card -->
+        <div class="card mt-4 border-0 bg-light">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-3">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Why verify your email?
+                </h6>
+                <div class="row text-sm">
+                    <div class="col-md-4">
+                        <i class="fas fa-lock text-primary mb-2 d-block"></i>
+                        <small>Account Security</small>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-key text-success mb-2 d-block"></i>
+                        <small>Password Recovery</small>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-bell text-warning mb-2 d-block"></i>
+                        <small>Important Updates</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.verification-steps {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color), #357abd) !important;
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+    color: #1976d2;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), #357abd);
+    border: none;
+    transition: transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.text-sm small {
+    font-size: 0.875rem;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+</style>
+{% endblock %}
