@@ -1,4 +1,3 @@
-
 # checkout/views.py
 import stripe
 from django.shortcuts import render, redirect, get_object_or_404, reverse
@@ -59,11 +58,46 @@ def checkout(request):
             else:
                 order.stripe_pid = f"temp_{timezone.now().timestamp()}"
 
-            order.save()
+            # MOVED: Calculate total and add line items BEFORE using total
+            total = 0
+            for module_id in cart:
+                try:
+                    module = Module.objects.get(id=module_id)
 
-            # Update order total
+                    order_line_item = OrderLineItem(
+                        order=order,
+                        module=module,
+                    )
+                    # Note: We'll save this after the order is saved
+                    total += module.price
+
+                    # Grant user access to the module
+                    UserModule.objects.get_or_create(
+                        user=request.user,
+                        module=module
+                    )
+
+                except Module.DoesNotExist:
+                    messages.error(request, "One of the modules in your cart wasn't found.")
+                    if order.pk:  # Only delete if order was saved
+                        order.delete()
+                    return redirect('shop:modules')
+
+            # NOW we can set the total and save the order
             order.total = total
             order.save()
+
+            # Now save the line items (they need the order to exist first)
+            for module_id in cart:
+                try:
+                    module = Module.objects.get(id=module_id)
+                    order_line_item = OrderLineItem(
+                        order=order,
+                        module=module,
+                    )
+                    order_line_item.save()
+                except Module.DoesNotExist:
+                    continue  # Already handled above
 
             # Send confirmation email
             try:
@@ -84,38 +118,6 @@ def checkout(request):
             except Exception as e:
                 # Log error but don't break the checkout process
                 print(f"Failed to send confirmation email: {e}")
-
-            # Clear the cart
-            if 'cart' in request.session:
-                del request.session['cart']
-
-            # Add line items and create UserModule entries
-            total = 0
-            for module_id in cart:
-                try:
-                    module = Module.objects.get(id=module_id)
-
-                    order_line_item = OrderLineItem(
-                        order=order,
-                        module=module,
-                    )
-                    order_line_item.save()
-                    total += module.price
-
-                    # Grant user access to the module
-                    UserModule.objects.get_or_create(
-                        user=request.user,
-                        module=module
-                    )
-
-                except Module.DoesNotExist:
-                    messages.error(request, "One of the modules in your cart wasn't found.")
-                    order.delete()
-                    return redirect('shop:modules')
-
-            # Update order total
-            order.total = total
-            order.save()
 
             # Clear the cart
             if 'cart' in request.session:
@@ -193,7 +195,4 @@ def checkout_success(request, order_number):
 
 
 # The webhook view is now imported from webhooks.py
-
-# Use: from .webhooks import webhook
-
 stripe_webhook = webhook
