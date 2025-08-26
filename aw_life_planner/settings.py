@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'storages',
 
+    'django_extensions',
+
     # Local apps
     'accounts',
     'diary',
